@@ -1,0 +1,53 @@
+{% extends 'registration/base_generic.html' %}
+
+{% block content %}
+  <h1>Analizler</h1>
+
+  <!-- Arama Formu -->
+  <form method="get" action="{% url 'analysis_list' %}">
+    <input type="text" name="q" placeholder="Ara..." value="{{ search_query }}">
+    <button type="submit">Ara</button>
+  </form>
+
+  <ul>
+    {% for analysis in analyses %}
+      <li>
+        <h2>{{ analysis.title }}</h2>
+        <p>{{ analysis.content }}</p>
+
+        <!-- Yorumlar -->
+        <a href="{% url 'add_comment' analysis.id %}">Yorum Yap</a>
+
+        <!-- Beğenme Butonu -->
+        <form action="{% url 'like_analysis' analysis.id %}" method="POST">
+          {% csrf_token %}
+          <button type="submit">Beğen</button>
+        </form>
+
+        <!-- Kaydetme Butonu -->
+        <form action="{% url 'save_analysis' analysis.id %}" method="POST">
+          {% csrf_token %}
+          <button type="submit">Kaydet</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li class="message">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% for comment in analysis.comment_set.all %}
+      <div class="comment">
+          <p>{{ comment.text }}</p>
+          <p><strong>{{ comment.user.username }}</strong></p>
+
+          <a href="{% url 'like_comment' comment.id %}">Beğen</a>
+          <span>{{ comment.likes.count }} Beğeni</span>
+      </div>
+  {% endfor %}
+{% endblock %}

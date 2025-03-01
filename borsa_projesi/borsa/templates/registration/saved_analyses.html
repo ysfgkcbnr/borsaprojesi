@@ -1,0 +1,11 @@
+<!-- saved_analyses.html -->
+<h1>Kaydedilen Analizler</h1>
+{% if saved_analyses %}
+  <ul>
+    {% for saved in saved_analyses %}
+      <li>{{ saved.analysis.title }} - {{ saved.analysis.created_at }}</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Henüz kaydedilmiş analiz yok.</p>
+{% endif %}

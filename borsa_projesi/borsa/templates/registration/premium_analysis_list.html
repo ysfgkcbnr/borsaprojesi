@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Premium Analizler</h2>
+
+{% for analysis in analyses %}
+    <div class="analysis-card">
+        <h3>{{ analysis.title }}</h3>
+        <p>{{ analysis.content }}</p>
+        {% if analysis.image %}
+            <img src="{{ analysis.image.url }}" alt="{{ analysis.title }}" width="300">
+        {% endif %}
+        <p><strong>Yazar:</strong> {{ analysis.author }}</p>
+    </div>
+{% empty %}
+    <p>Henüz Premium Analiz Eklenmemiş.</p>
+{% endfor %}
+
+{% endblock %}

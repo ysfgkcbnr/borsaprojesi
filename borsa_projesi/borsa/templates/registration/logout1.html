@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="tr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Çıkış Yap</title>
+    </head>
+    <body>
+        <h2>Çıkış Yapmak İstediğinizden Emin Misiniz?</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit">Çıkış Yap</button>
+        </form>
+    </body>
+</html>

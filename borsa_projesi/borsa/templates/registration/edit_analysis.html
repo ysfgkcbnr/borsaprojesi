@@ -1,0 +1,7 @@
+<!-- edit_analysis.html -->
+<h1>Analizi Düzenle</h1>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Güncelle</button>
+</form>

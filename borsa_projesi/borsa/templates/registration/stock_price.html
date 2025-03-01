@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Borsa Fiyatı</title>
+</head>
+<body>
+    <h1>Borsa İstanbul Hisse Fiyatları</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        <label for="symbol">Bir hisse seçin:</label>
+        <select name="symbol" id="symbol">
+            {% for symbol in symbols %}
+                <option value="{{ symbol }}">{{ symbol }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Fiyatı Göster</button>
+    </form>
+
+    {% if stock_price %}
+        <h2>Fiyat: {{ stock_price }}</h2>
+    {% endif %}
+</body>
+</html>

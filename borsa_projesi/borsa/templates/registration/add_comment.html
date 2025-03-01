@@ -1,0 +1,18 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+  <h1>{{ analysis.title }} için Yorum Yap</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Yorum Ekle</button>
+  </form>
+
+  <h2>Yorumlar</h2>
+  <ul>
+    {% for comment in analysis.comment_set.all %}
+      <li>{{ comment.user }}: {{ comment.content }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

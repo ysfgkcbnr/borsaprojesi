@@ -1,0 +1,190 @@
+from django.http import HttpResponse
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import logout
+from yahoo_fin import stock_info
+from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Analysis, Comment, Like, Saved
+from .forms import CommentForm
+from django.contrib.auth.decorators import login_required
+from .forms import AnalysisForm
+from django.contrib import messages
+from .models import Comment, CommentLike
+from .models import Notification
+from .models import Analysis
+from .decorators import premium_required
+from .models import Comment
+
+
+def chat_room(request):
+    return render(request, 'registration/chat.html')
+
+@premium_required  # Yalnızca premium kullanıcılar görebilir
+def premium_analysis_list(request):
+    analyses = Analysis.objects.filter(is_premium=True)  # Premium analizleri getir
+    return render(request, 'registration/premium_analysis_list.html', {'analyses': analyses})
+
+def premium_info(request):
+    return render(request, 'registration/premium_info.html')
+
+def analysis_list(request):
+    search_query = request.GET.get('q', '')  # Arama sorgusu
+    if search_query:
+        analyses = Analysis.objects.filter(title__icontains=search_query)  # Başlıkta arama
+    else:
+        analyses = Analysis.objects.all()
+    return render(request, 'registration/analysis_list.html', {'analyses': analyses, 'search_query': search_query})
+
+# Analize yorum eklemek
+@login_required
+def add_comment(request, analysis_id):
+    analysis = get_object_or_404(Analysis, id=analysis_id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.analysis = analysis
+            comment.user = request.user
+            comment.save()
+            return redirect('analysis_list')  # Yorum eklendikten sonra geri dön
+    else:
+        form = CommentForm()
+    return render(request, 'registration/add_comment.html', {'form': form, 'analysis': analysis})
+
+# Analizi beğenmek
+@login_required
+def like_analysis(request, analysis_id):
+    analysis = get_object_or_404(Analysis, id=analysis_id)
+    Like.objects.create(analysis=analysis, user=request.user)
+    messages.success(request, 'Analiz başarıyla beğenildi!')
+    return redirect('analysis_list')
+
+# Analizi kaydetmek
+@login_required
+def save_analysis(request, analysis_id):
+    analysis = get_object_or_404(Analysis, id=analysis_id)
+    Saved.objects.create(analysis=analysis, user=request.user)
+    messages.success(request, 'Analiz başarıyla kaydedildi!')
+    return redirect('analysis_list')
+
+# Analiz eklemek
+@login_required
+def add_analysis(request):
+    if request.method == 'POST':
+        form = AnalysisForm(request.POST)
+        if form.is_valid():
+            analysis = form.save(commit=False)
+            analysis.author = request.user  # Yöneticinin kim olduğunu kaydediyoruz
+            analysis.save()
+            return redirect('analysis_list')  # Analiz eklendikten sonra analizler sayfasına dönüyoruz
+    else:
+        form = AnalysisForm()
+    return render(request, 'registration/add_analysis.html', {'form': form})
+
+# Kullanıcının kaydettiği analizler
+@login_required
+def saved_analyses(request):
+    saved_analyses = Saved.objects.filter(user=request.user)
+    return render(request, 'registration/saved_analyses.html', {'saved_analyses': saved_analyses})
+@login_required
+def analysis_list(request):
+    if request.user.is_superuser:
+        analyses = Analysis.objects.all()  # Yöneticiler için tüm analizler
+    else:
+        analyses = Analysis.objects.filter(author=request.user)  # Normal kullanıcılar için yalnızca kendi analizleri
+    return render(request, 'registration/analysis_list.html', {'analyses': analyses})
+
+
+# Analiz düzenleme
+@login_required
+def edit_analysis(request, analysis_id):
+    analysis = get_object_or_404(Analysis, id=analysis_id)
+
+    if analysis.author != request.user and not request.user.is_superuser:
+        return redirect('analysis_list')  # Kullanıcı yalnızca kendi analizlerini düzenleyebilir
+
+    if request.method == 'POST':
+        form = AnalysisForm(request.POST, instance=analysis)
+        if form.is_valid():
+            form.save()
+            return redirect('analysis_list')
+    else:
+        form = AnalysisForm(instance=analysis)
+
+    return render(request, 'borsa/edit_analysis.html', {'form': form, 'analysis': analysis})
+
+# Analiz silme
+@login_required
+def delete_analysis(request, analysis_id):
+    analysis = get_object_or_404(Analysis, id=analysis_id)
+
+    if analysis.author != request.user and not request.user.is_superuser:
+        return redirect('analysis_list')  # Kullanıcı yalnızca kendi analizlerini silebilir
+
+    analysis.delete()
+    return redirect('analysis_list')
+
+# views.py
+@login_required
+def like_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    if not CommentLike.objects.filter(comment=comment, user=request.user).exists():
+        CommentLike.objects.create(comment=comment, user=request.user)
+    return redirect('analysis_list')  # Yorumlar sayfasına geri dön
+
+# views.py
+@login_required
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    if comment.user != request.user and not request.user.is_superuser:
+        return redirect('analysis_list')  # Kullanıcı yalnızca kendi yorumlarını silebilir
+    comment.delete()
+    return redirect('analysis_list')
+
+
+def custom_logout(request):
+    logout(request)
+    return redirect('login')
+def index(request):
+    return render(request, 'index.html')
+
+def about(request):
+    return HttpResponse("Bu, borsa ile ilgili bir projedir.")
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})
+
+@login_required
+def add_comment(request, analysis_id):
+    analysis = get_object_or_404(Analysis, id=analysis_id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.analysis = analysis
+            comment.user = request.user
+            comment.save()
+
+            # Bildirim oluşturma
+            notification = Notification.objects.create(
+                user=analysis.author,  # Yorum yapan kişi yöneticiyi bildirecek
+                message=f'{request.user.username} yorum yaptı: {comment.text}'
+            )
+
+            return redirect('analysis_list')
+    else:
+        form = CommentForm()
+    return render(request, 'registration/add_comment.html', {'form': form, 'analysis': analysis})
+
+# views.py
+@login_required
+def notifications(request):
+    notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'borsa/notifications.html', {'notifications': notifications})

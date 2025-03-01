@@ -1,0 +1,11 @@
+<!-- notifications.html -->
+<h1>Bildirimler</h1>
+
+{% for notification in notifications %}
+    <div class="notification">
+        <p>{{ notification.message }}</p>
+        <p><em>{{ notification.created_at }}</em></p>
+    </div>
+{% empty %}
+    <p>Henüz bildirim yok.</p>
+{% endfor %}
