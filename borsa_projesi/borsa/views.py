@@ -14,6 +14,8 @@ from .models import Notification
 from .models import Analysis
 from .decorators import premium_required
 from .models import Comment
+from django.shortcuts import render
+
 
 
 def chat_room(request):

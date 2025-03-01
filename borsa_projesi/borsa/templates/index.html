@@ -1,10 +1,70 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-    <title>Borsa Projesi</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anasayfa | Borsa Platformu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-    <h1>Hoşgeldiniz!</h1>
-    <p>Borsa projesine hoşgeldiniz. Burada hisse senetleri ve borsa ile ilgili her şeyi bulabilirsiniz.</p>
+<body class="bg-gray-100">
+    <header class="bg-blue-900 text-white p-4 text-center text-xl font-bold">
+        Borsa Platformu
+    </header>
+
+    <div class="container mx-auto p-6">
+        <!-- Borsa Verileri -->
+        <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Canlı Borsa Verileri</h2>
+            <table class="w-full border-collapse border border-gray-300">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="border p-2">Hisse</th>
+                        <th class="border p-2">Fiyat</th>
+                        <th class="border p-2">Değişim</th>
+                    </tr>
+                </thead>
+                <tbody id="borsa-table">
+                    <tr class="text-center">
+                        <td class="border p-2">AAPL</td>
+                        <td class="border p-2">$150.25</td>
+                        <td class="border p-2 text-green-600">+1.2%</td>
+                    </tr>
+                    <tr class="text-center">
+                        <td class="border p-2">TSLA</td>
+                        <td class="border p-2">$650.40</td>
+                        <td class="border p-2 text-red-600">-0.8%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Grafik Alanı -->
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">Hisse Senedi Grafiği</h2>
+            <canvas id="borsaChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Örnek Grafik
+        var ctx = document.getElementById('borsaChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'],
+                datasets: [{
+                    label: 'AAPL Hissesi',
+                    data: [150, 152, 149, 153, 155],
+                    borderColor: 'blue',
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+            }
+        });
+    </script>
 </body>
 </html>
