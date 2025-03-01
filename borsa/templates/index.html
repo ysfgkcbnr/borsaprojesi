@@ -8,9 +8,25 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100">
-    <header class="bg-blue-900 text-white p-4 text-center text-xl font-bold">
-        Borsa Platformu
+    <!-- Header -->
+    <header class="bg-blue-900 text-white p-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold">Borsa Platformu</h1>
+        <nav>
+            <ul class="flex space-x-4">
+                <li><a href="#" class="hover:underline">Ana Sayfa</a></li>
+                <li><a href="#" class="hover:underline">Haberler</a></li>
+                <li><a href="#" class="hover:underline">Analizler</a></li>
+                <li><a href="#" class="hover:underline">İletişim</a></li>
+            </ul>
+        </nav>
+        <button class="bg-yellow-500 text-blue-900 px-4 py-2 rounded-lg">Giriş Yap</button>
     </header>
+
+    <!-- Ana Banner -->
+    <section class="bg-blue-700 text-white text-center py-16">
+        <h2 class="text-3xl font-bold">Geleceğe Yatırım Yapın</h2>
+        <p class="mt-4">Canlı borsa verileri ve analizlerle yatırım kararlarınızı güçlendirin.</p>
+    </section>
 
     <div class="container mx-auto p-6">
         <!-- Borsa Verileri -->
@@ -45,6 +61,11 @@
             <canvas id="borsaChart"></canvas>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="bg-blue-900 text-white text-center p-4 mt-10">
+        <p>&copy; 2025 Borsa Platformu | Tüm Hakları Saklıdır</p>
+    </footer>
 
     <script>
         // Örnek Grafik
