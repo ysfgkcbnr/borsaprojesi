@@ -15,8 +15,20 @@ from .models import Analysis
 from .decorators import premium_required
 from .models import Comment
 from django.shortcuts import render
+from django.contrib.auth import login
+from .forms import CustomUserCreationForm
 
 
+def register(request):
+    if request.method == "POST":
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # Kullanıcıyı otomatik giriş yaptırıyoruz
+            return redirect('home')
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'users/register.html', {'form': form})
 
 def chat_room(request):
     return render(request, 'registration/chat.html')
@@ -190,3 +202,10 @@ def add_comment(request, analysis_id):
 def notifications(request):
     notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'borsa/notifications.html', {'notifications': notifications})
+
+@login_required
+def premium_page(request):
+    if request.user.is_premium:
+        return render(request, 'users/premium.html')
+    else:
+        return render(request, 'users/not_premium.html')

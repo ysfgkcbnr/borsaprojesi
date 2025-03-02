@@ -1,6 +1,8 @@
 from django import forms
 from .models import Comment
 from .models import Analysis
+from django.contrib.auth.forms import UserCreationForm
+from .models import CustomUser
 
 class AnalysisForm(forms.ModelForm):
     class Meta:
@@ -10,3 +12,8 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['text']  # Kullanıcı yalnızca yorum metnini girebilir
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'email', 'password1', 'password2')

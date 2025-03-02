@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
 
 # Yöneticilerin paylaştığı analizler için model
@@ -9,7 +9,7 @@ class Analysis(models.Model):
     content = models.TextField()
     image = models.ImageField(upload_to='images/', blank=True, null=True)
     is_premium = models.BooleanField(default=False)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -21,7 +21,7 @@ class Analysis(models.Model):
 
 class Comment(models.Model):
     analysis = models.ForeignKey(Analysis, related_name="comments", on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     text = models.TextField()  # Yorum içeriği
     image = models.ImageField(upload_to='comments/', null=True, blank=True)  # Fotoğraf eklemek için
     created_at = models.DateTimeField(auto_now_add=True)  # Yorumun oluşturulma tarihi
@@ -33,7 +33,7 @@ class Comment(models.Model):
 
 class Like(models.Model):
     analysis = models.ForeignKey(Analysis, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('analysis', 'user')  # Bir kullanıcı sadece bir analizi bir kez beğenebilir.
@@ -43,7 +43,7 @@ class Like(models.Model):
 
 class Saved(models.Model):
     analysis = models.ForeignKey(Analysis, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('analysis', 'user')  # Bir kullanıcı sadece bir analizi bir kez kaydedebilir.
@@ -61,7 +61,7 @@ class Hisse(models.Model):
 
 class CommentLike(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="likes")
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -71,7 +71,7 @@ class CommentLike(models.Model):
 
 
 class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     message = models.TextField()
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -80,9 +80,8 @@ class Notification(models.Model):
         return f"Notification for {self.user.username}"
 
 
-class UserProfile(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    is_premium = models.BooleanField(default=False)  # Premium kullanıcı mı?
+class CustomUser(AbstractUser):
+    is_premium = models.BooleanField(default=False)  # Premium kullanıcı olup olmadığı
 
     def __str__(self):
-        return self.user.username
+        return self.username

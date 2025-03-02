@@ -41,7 +41,7 @@ ALLOWED_HOSTS = ['borsaprojesi-1.onrender.com']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-AUTH_USER_MODEL = 'auth.User'
+AUTH_USER_MODEL = 'borsa.CustomUser'
 
 # Application definition
 
