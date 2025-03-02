@@ -40,6 +40,7 @@ ALLOWED_HOSTS = ['borsaprojesi-1.onrender.com']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+LOGIN_REDIRECT_URL = "/analysis/"
 
 AUTH_USER_MODEL = 'borsa.CustomUser'
 
