@@ -12,7 +12,7 @@ urlpatterns = [
     # auth_views.LogoutView kullanılıyor
     path('şifre_sıfırlama/', auth_views.PasswordResetView.as_view(), name='password_reset'),
     path('kayıt/', views.register, name='register'),
-    path('analiz/', views.analysis_list, name='analysis_list'),
+    path('analizler/', views.analysis_list, name='analysis_list'),
     path('analiz_ekle/', views.add_analysis, name='add_analysis'),
     path('yorum_ekle/<int:analysis_id>/', views.add_comment, name='add_comment'),
     path('analiz_begenme/<int:analysis_id>/', views.like_analysis, name='like_analysis'),
