@@ -7,61 +7,34 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
-
-    <!-- Header -->
-    <header class="bg-blue-900 text-white p-4 text-center text-2xl font-semibold">
+    <header class="bg-blue-900 text-white p-4 text-center text-xl font-bold">
         Borsa Platformu - Analizler
     </header>
 
     <div class="container mx-auto p-6">
-
-        <!-- Page Title -->
-        <h2 class="text-3xl font-semibold text-gray-800 mb-6">Analizler</h2>
+        <h2 class="text-2xl font-semibold mb-4">Analizler</h2>
 
         <!-- Kategoriler ve Filtreler -->
-        <div class="mb-6 flex flex-wrap gap-4 justify-center">
-            <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full font-medium transition duration-200 ease-in-out">Tümü</button>
-            <button class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-full font-medium transition duration-200 ease-in-out">Teknik Analiz</button>
-            <button class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-full font-medium transition duration-200 ease-in-out">Temel Analiz</button>
+        <div class="mb-4 flex flex-wrap gap-2">
+            <button class="bg-blue-500 text-white px-4 py-2 rounded">Tümü</button>
+            <button class="bg-gray-300 px-4 py-2 rounded">Teknik Analiz</button>
+            <button class="bg-gray-300 px-4 py-2 rounded">Temel Analiz</button>
         </div>
 
         <!-- Analiz Listesi -->
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-
-            <!-- Analiz Kartı 1 -->
-            <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition duration-300 ease-in-out transform hover:scale-105">
-                <h3 class="text-xl font-semibold text-gray-800 mb-2">Hisse A Analizi</h3>
-                <p class="text-gray-600 mb-4">Bu analizde Hisse A'nın son durumu incelenmektedir...</p>
-                <a href="#" class="text-blue-600 hover:underline font-medium">Detaylı İncele</a>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-xl font-bold">Hisse A Analizi</h3>
+                <p class="text-gray-600">Bu analizde Hisse A'nın son durumu incelenmektedir...</p>
+                <a href="#" class="text-blue-600 mt-2 inline-block">Detaylı İncele</a>
             </div>
 
-            <!-- Analiz Kartı 2 -->
-            <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition duration-300 ease-in-out transform hover:scale-105">
-                <h3 class="text-xl font-semibold text-gray-800 mb-2">Hisse B Analizi</h3>
-                <p class="text-gray-600 mb-4">Bu analizde Hisse B'nin piyasa hareketleri değerlendirilmiştir...</p>
-                <a href="#" class="text-blue-600 hover:underline font-medium">Detaylı İncele</a>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-xl font-bold">Hisse B Analizi</h3>
+                <p class="text-gray-600">Bu analizde Hisse B'nin piyasa hareketleri değerlendirilmiştir...</p>
+                <a href="#" class="text-blue-600 mt-2 inline-block">Detaylı İncele</a>
             </div>
-
-            <!-- Analiz Kartı 3 -->
-            <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition duration-300 ease-in-out transform hover:scale-105">
-                <h3 class="text-xl font-semibold text-gray-800 mb-2">Hisse C Analizi</h3>
-                <p class="text-gray-600 mb-4">Hisse C'nin gelecekteki hareketleriyle ilgili detaylı analiz yapılmıştır...</p>
-                <a href="#" class="text-blue-600 hover:underline font-medium">Detaylı İncele</a>
-            </div>
-
         </div>
     </div>
-
 </body>
 </html>
-<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-    {% for analiz in analiz_listesi %}
-        <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition duration-300 ease-in-out transform hover:scale-105">
-            <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ analiz.baslik }}</h3>
-            <p class="text-gray-600 mb-4">{{ analiz.aciklama|truncatewords:20 }}</p>
-            <a href="{% url 'analiz_detay' analiz.id %}" class="text-blue-600 hover:underline font-medium">Detaylı İncele</a>
-        </div>
-    {% empty %}
-        <p class="text-gray-500">Henüz analiz eklenmedi.</p>
-    {% endfor %}
-</div>
