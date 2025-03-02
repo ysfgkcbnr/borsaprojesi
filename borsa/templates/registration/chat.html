@@ -21,7 +21,11 @@
             <!-- Mesajlar burada görünecek -->
         </div>
 
-        <!-- Message Input -->
+        <!-- Nickname ve Message Input -->
+        <div class="mb-4">
+            <input id="nickname-input" type="text" placeholder="Nickname girin..." class="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
         <div class="flex items-center">
             <input id="chat-message-input" type="text" placeholder="Mesajınızı yazın..." class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             <button id="chat-message-input-send" class="ml-4 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200">Gönder</button>
@@ -31,17 +35,32 @@
     <script>
         const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/');
 
+        // Kullanıcı nickname bilgisi alındığında mesaj gönderiminde kullanılacak
+        let nickname = '';
+
+        document.querySelector('#nickname-input').addEventListener('input', function() {
+            nickname = this.value;
+        });
+
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             const chatLog = document.querySelector('#chat-log');
-            chatLog.innerHTML += '<p class="mb-2 p-2 bg-gray-100 rounded-lg text-gray-800">' + data.message + '</p>';
+            // Gönderilen mesaj ile nickname'i gösterme
+            chatLog.innerHTML += '<p class="mb-2 p-2 bg-gray-100 rounded-lg text-gray-800"><strong>' + data.nickname + ':</strong> ' + data.message + '</p>';
             chatLog.scrollTop = chatLog.scrollHeight;  // Otomatik olarak en son mesaja kaydır
         };
 
         document.querySelector('#chat-message-input-send').onclick = function(e) {
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
-            chatSocket.send(JSON.stringify({'message': message}));
+
+            // Eğer nickname yoksa, mesaj göndermesin
+            if (!nickname.trim()) {
+                alert('Lütfen bir nickname girin!');
+                return;
+            }
+
+            chatSocket.send(JSON.stringify({'nickname': nickname, 'message': message}));
             messageInputDom.value = '';
         };
 
