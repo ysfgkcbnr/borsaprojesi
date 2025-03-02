@@ -1,53 +1,40 @@
-{% extends 'registration/base_generic.html' %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizler | Borsa Platformu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-blue-900 text-white p-4 text-center text-xl font-bold">
+        Borsa Platformu - Analizler
+    </header>
 
-{% block content %}
-  <h1>Analizler</h1>
+    <div class="container mx-auto p-6">
+        <h2 class="text-2xl font-semibold mb-4">Analizler</h2>
 
-  <!-- Arama Formu -->
-  <form method="get" action="{% url 'analysis_list' %}">
-    <input type="text" name="q" placeholder="Ara..." value="{{ search_query }}">
-    <button type="submit">Ara</button>
-  </form>
+        <!-- Kategoriler ve Filtreler -->
+        <div class="mb-4 flex flex-wrap gap-2">
+            <button class="bg-blue-500 text-white px-4 py-2 rounded">Tümü</button>
+            <button class="bg-gray-300 px-4 py-2 rounded">Teknik Analiz</button>
+            <button class="bg-gray-300 px-4 py-2 rounded">Temel Analiz</button>
+        </div>
 
-  <ul>
-    {% for analysis in analyses %}
-      <li>
-        <h2>{{ analysis.title }}</h2>
-        <p>{{ analysis.content }}</p>
+        <!-- Analiz Listesi -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-xl font-bold">Hisse A Analizi</h3>
+                <p class="text-gray-600">Bu analizde Hisse A'nın son durumu incelenmektedir...</p>
+                <a href="#" class="text-blue-600 mt-2 inline-block">Detaylı İncele</a>
+            </div>
 
-        <!-- Yorumlar -->
-        <a href="{% url 'add_comment' analysis.id %}">Yorum Yap</a>
-
-        <!-- Beğenme Butonu -->
-        <form action="{% url 'like_analysis' analysis.id %}" method="POST">
-          {% csrf_token %}
-          <button type="submit">Beğen</button>
-        </form>
-
-        <!-- Kaydetme Butonu -->
-        <form action="{% url 'save_analysis' analysis.id %}" method="POST">
-          {% csrf_token %}
-          <button type="submit">Kaydet</button>
-        </form>
-      </li>
-    {% endfor %}
-  </ul>
-
-  {% if messages %}
-    <ul>
-      {% for message in messages %}
-        <li class="message">{{ message }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-
-  {% for comment in analysis.comment_set.all %}
-      <div class="comment">
-          <p>{{ comment.text }}</p>
-          <p><strong>{{ comment.user.username }}</strong></p>
-
-          <a href="{% url 'like_comment' comment.id %}">Beğen</a>
-          <span>{{ comment.likes.count }} Beğeni</span>
-      </div>
-  {% endfor %}
-{% endblock %}
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-xl font-bold">Hisse B Analizi</h3>
+                <p class="text-gray-600">Bu analizde Hisse B'nin piyasa hareketleri değerlendirilmiştir...</p>
+                <a href="#" class="text-blue-600 mt-2 inline-block">Detaylı İncele</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
