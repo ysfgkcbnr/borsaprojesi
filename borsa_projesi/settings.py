@@ -43,6 +43,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTH_USER_MODEL = 'borsa.CustomUser'
 
+CORS_ALLOWED_ORIGINS = [
+    "https://borsaprojesi-1.onrender.com",
+]
 # Application definition
 
 INSTALLED_APPS = [

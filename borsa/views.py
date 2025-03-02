@@ -18,7 +18,7 @@ from django.shortcuts import render
 from django.contrib.auth import login
 from .forms import CustomUserCreationForm
 
-
+# Kullanıcı kaydı fonksiyonunu tek bir şekilde tanımlayın:
 def register(request):
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
@@ -28,7 +28,8 @@ def register(request):
             return redirect('home')
     else:
         form = CustomUserCreationForm()
-    return render(request, 'users/register.html', {'form': form})
+    return render(request, 'registration/register.html', {'form': form})
+
 
 def chat_room(request):
     return render(request, 'registration/chat.html')
@@ -165,15 +166,7 @@ def index(request):
 def about(request):
     return HttpResponse("Bu, borsa ile ilgili bir projedir.")
 
-def register(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')
-    else:
-        form = UserCreationForm()
-    return render(request, 'registration/register.html', {'form': form})
+
 
 @login_required
 def add_comment(request, analysis_id):

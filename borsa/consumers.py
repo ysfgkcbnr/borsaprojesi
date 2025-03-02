@@ -1,35 +1,33 @@
-# borsa/consumers.py
-
-import json
+# consumers.py
 from channels.generic.websocket import AsyncWebsocketConsumer
+import json
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        # WebSocket bağlantısını kabul et
-        self.room_group_name = 'chat_room'  # Odaların adları buraya yazılır
+        self.room_name = 'chatroom'
+        self.room_group_name = f'chat_{self.room_name}'
 
-        # Odadaki kullanıcıları abone et
+        # Kanal grubuna katıl
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
 
-        # Bağlantı kurulduğunda WebSocket'i aç
         await self.accept()
 
     async def disconnect(self, close_code):
-        # WebSocket bağlantısı kapatıldığında grubun çıkışı
+        # Kanal grubundan çık
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
 
+    # Mesaj alındığında bu fonksiyon çalışır
     async def receive(self, text_data):
-        # WebSocket'ten gelen mesajı al
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
 
-        # Gruba mesaj gönder
+        # Kanal grubuna mesaj gönder
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -38,10 +36,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
         )
 
+    # Mesaj gönderildiğinde bu fonksiyon çalışır
     async def chat_message(self, event):
-        # Grubun mesajını WebSocket'teki alıcıya gönder
         message = event['message']
 
+        # WebSocket'e mesaj gönder
         await self.send(text_data=json.dumps({
             'message': message
         }))
