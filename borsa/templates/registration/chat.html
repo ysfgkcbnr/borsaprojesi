@@ -1,22 +1,41 @@
-<!-- templates/chat.html -->
-
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-    <title>Chat</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sohbet Odası | Borsa Platformu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>Chat Room</h1>
-    <div id="chat-log"></div>
-    <input id="chat-message-input" type="text" placeholder="Type a message...">
-    <button id="chat-message-input-send">Send</button>
+<body class="bg-gray-100">
+
+    <!-- Header -->
+    <header class="bg-blue-900 text-white p-4 text-center text-2xl font-semibold">
+        Sohbet Odası
+    </header>
+
+    <!-- Chat Container -->
+    <div class="container mx-auto p-6 max-w-3xl">
+
+        <!-- Chat Log -->
+        <div id="chat-log" class="bg-white p-4 rounded-lg shadow-lg h-96 overflow-y-auto mb-4">
+            <!-- Mesajlar burada görünecek -->
+        </div>
+
+        <!-- Message Input -->
+        <div class="flex items-center">
+            <input id="chat-message-input" type="text" placeholder="Mesajınızı yazın..." class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button id="chat-message-input-send" class="ml-4 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200">Gönder</button>
+        </div>
+    </div>
 
     <script>
         const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/');
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').innerHTML += '<p>' + data.message + '</p>';
+            const chatLog = document.querySelector('#chat-log');
+            chatLog.innerHTML += '<p class="mb-2 p-2 bg-gray-100 rounded-lg text-gray-800">' + data.message + '</p>';
+            chatLog.scrollTop = chatLog.scrollHeight;  // Otomatik olarak en son mesaja kaydır
         };
 
         document.querySelector('#chat-message-input-send').onclick = function(e) {
@@ -25,6 +44,13 @@
             chatSocket.send(JSON.stringify({'message': message}));
             messageInputDom.value = '';
         };
+
+        // Enter tuşu ile mesaj gönderme
+        document.querySelector('#chat-message-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                document.querySelector('#chat-message-input-send').click();
+            }
+        });
     </script>
 </body>
 </html>
