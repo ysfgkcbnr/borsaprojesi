@@ -1,6 +1,6 @@
-from django.urls import re_path
-from . import consumers
+from django.urls import path
+from borsa.consumers import ChatConsumer  # WebSocket tüketicinizi içe aktarın
 
 websocket_urlpatterns = [
-    re_path(r'ws/chat/$', consumers.ChatConsumer.as_asgi()),  # WebSocket URL'sini burada tanımlıyoruz
+    path("ws/chat/<str:room_name>/", ChatConsumer.as_asgi(), name="chat_socket"),
 ]

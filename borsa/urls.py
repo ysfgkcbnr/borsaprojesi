@@ -25,5 +25,5 @@ urlpatterns = [
     path('bildirimler/', views.notifications, name='notifications'),
     path('premium_analizler/', views.premium_analysis_list, name='premium_analysis_list'),
     path('chat/', chat_room, name='chat_room'),
-    path("ws/", include("borsa.websocket_urls")),
+
 ]
