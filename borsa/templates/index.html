@@ -9,12 +9,12 @@
 </head>
 <body class="bg-gray-100">
     <!-- Navbar -->
-    <nav class="bg-blue-900 text-white p-4 flex justify-between items-center">
-        <div class="text-xl font-bold">Borsa Platformu</div>
-        <button id="menu-toggle" class="md:hidden block text-white focus:outline-none">
+    <nav class="bg-blue-900 text-white p-4 flex justify-between items-center sticky top-0 z-50">
+    <div class="text-xl font-bold">Borsa Platformu</div>
+    <button id="menu-toggle" class="md:hidden block text-white focus:outline-none">
             ☰
         </button>
-        <ul id="menu" class="hidden md:flex space-x-6">
+         <ul id="menu" class="hidden md:flex space-x-6">
             <li><a href="#" class="hover:text-gray-300">Anasayfa</a></li>
             <li><a href="#" class="hover:text-gray-300">Hisse Senetleri</a></li>
             <li><a href="analizler" class="hover:text-gray-300">Teknik Analiz</a></li>
@@ -25,7 +25,7 @@
     </nav>
 
     <!-- Mobil Menü -->
-    <div id="mobile-menu" class="hidden md:hidden bg-blue-900 text-white p-4">
+    <div id="mobile-menu" class="hidden md:hidden bg-blue-900 text-white p-4 fixed w-full top-16 z-40">
         <ul>
             <li class="py-2"><a href="#" class="block">Anasayfa</a></li>
             <li class="py-2"><a href="#" class="block">Hisse Senetleri</a></li>
@@ -36,7 +36,7 @@
         </ul>
     </div>
 
-    <div class="container mx-auto p-6">
+    <div class="container mx-auto p-6 pt-20">
         <!-- Borsa Verileri -->
         <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
             <h2 class="text-xl font-semibold mb-4">Canlı Borsa Verileri</h2>
