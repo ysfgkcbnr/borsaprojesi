@@ -20,15 +20,15 @@ from .forms import CustomUserCreationForm
 from django.contrib.auth import authenticate, login
 from .forms import ProfileForm
 
+
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Hesabınız başarıyla oluşturuldu!')
-            return redirect('login')  # Kayıttan sonra giriş sayfasına yönlendir
+            return redirect('login')  # Kayıt olduktan sonra login sayfasına yönlendir
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
 
 # Kullanıcı kaydı fonksiyonunu tek bir şekilde tanımlayın:
