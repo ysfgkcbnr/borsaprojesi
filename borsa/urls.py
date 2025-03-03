@@ -30,5 +30,5 @@ urlpatterns = [
     path('premium_analysis_list/', views.premium_analysis_list, name='premium_analysis_list'),
     path('chat_room/', chat_room, name='chat_room'),
     path('profile/', views.profile, name='profile'),
-
+    path('profile/update/', views.update_profile, name='update_profile'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

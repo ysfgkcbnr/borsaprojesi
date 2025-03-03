@@ -20,7 +20,34 @@ from .forms import CustomUserCreationForm
 from django.contrib.auth import authenticate, login
 from .forms import ProfileForm
 from .models import UserProfile
+from .forms import UserProfileForm
+from .forms import ProfileUpdateForm, PasswordUpdateForm
+from django.contrib import messages
 
+@login_required
+def update_profile(request):
+    user_profile = UserProfile.objects.get(user=request.user)
+
+    if request.method == 'POST':
+        # Profil güncellemeyi işle
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=user_profile)
+        password_form = PasswordUpdateForm(request.user, request.POST)
+
+        if form.is_valid() and password_form.is_valid():
+            form.save()
+            password_form.save()
+            messages.success(request, 'Profil ve şifreniz başarıyla güncellendi.')
+            return redirect('profile')  # Kullanıcı profil sayfasına yönlendiriliyor
+
+    else:
+        form = ProfileUpdateForm(instance=user_profile)
+        password_form = PasswordUpdateForm(request.user)
+
+    return render(request, 'registration/update_profile.html', {
+        'form': form,
+        'user_profile': user_profile,
+        'password_form': password_form
+    })
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -32,20 +59,18 @@ def register(request):
     return render(request, 'registration/register.html', {'form': form})
 
 # Kullanıcı kaydı fonksiyonunu tek bir şekilde tanımlayın:
+
 @login_required
-def profile(request):
-    try:
-        user_profile = UserProfile.objects.get(user=request.user)
-    except UserProfile.DoesNotExist:
-        user_profile = UserProfile.objects.create(user=request.user)
+def profile_view(request):
+    user_profile = request.user.profile  # Kullanıcıya ait profil bilgileri
 
     if request.method == 'POST':
-        form = ProfileForm(request.POST, request.FILES, instance=user_profile)
+        form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
         if form.is_valid():
             form.save()
-            return redirect('profile')
+            return redirect('profile')  # Güncelleme işlemi başarılı olursa profil sayfasına yönlendir
     else:
-        form = ProfileForm(instance=user_profile)
+        form = UserProfileForm(instance=user_profile)
 
     return render(request, 'registration/profile.html', {'form': form, 'user_profile': user_profile})
 
