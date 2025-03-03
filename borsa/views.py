@@ -34,7 +34,7 @@ def register(request):
 @login_required
 def profile(request):
     user = request.user
-    return render(request, 'profile.html', {'user': user})
+    return render(request, 'registration/profile.html', {'user': user})
 
 def chat_room(request):
     return render(request, 'registration/chat.html')
@@ -199,14 +199,14 @@ def add_comment(request, analysis_id):
 @login_required
 def notifications(request):
     notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'borsa/notifications.html', {'notifications': notifications})
+    return render(request, 'registration/notifications.html', {'notifications': notifications})
 
 @login_required
 def premium_page(request):
     if request.user.is_premium:
-        return render(request, 'users/premium.html')
+        return render(request, 'registration/premium.html')
     else:
-        return render(request, 'users/not_premium.html')
+        return render(request, 'registration/not_premium.html')
 
 
 def custom_login(request):
@@ -217,7 +217,7 @@ def custom_login(request):
 
         if user is not None:
             login(request, user)
-            return redirect("/analysis/")  # Başarıyla giriş yapınca yönlendir
+            return redirect("/profile/")  # Başarıyla giriş yapınca yönlendir
         else:
             return render(request, "login.html", {"error": "Geçersiz kullanıcı adı veya şifre"})
 
