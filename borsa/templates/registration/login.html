@@ -17,6 +17,11 @@
             height: 100vh;
         }
 
+        /* Navbar'ın sayfayı örtmesini önlemek için içerik yukarıda başlasın */
+        .content {
+            margin-top: 80px;
+        }
+
         .container {
             background-color: #fff;
             padding: 30px;
@@ -24,7 +29,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
-            margin-top: 80px;
         }
 
         h2 {
@@ -57,33 +61,23 @@
             outline: none;
         }
 
-        .buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
         button {
-            background-color: #007bff;
+            background: linear-gradient(135deg, #007bff, #0056b3);
             color: #fff;
-            padding: 10px 0;
+            padding: 12px 0;
             font-size: 16px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease-in-out;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
         }
 
         button:hover {
-            background-color: #0056b3;
-        }
-
-        .back-button {
-            background-color: #6c757d;
-        }
-
-        .back-button:hover {
-            background-color: #5a6268;
+            background: linear-gradient(135deg, #0056b3, #003f7f);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.5);
+            transform: scale(1.05);
         }
 
         .footer {
@@ -117,19 +111,18 @@
         </ul>
     </nav>
 
-    <!-- Giriş Formu -->
-    <div class="container">
-        <h2>Giriş Yap</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <div class="buttons">
+    <!-- İçerik Alanı -->
+    <div class="content">
+        <div class="container">
+            <h2>Giriş Yap</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
                 <button type="submit">Giriş Yap</button>
-                <button type="button" class="back-button" onclick="history.back()">Geri Dön</button>
+            </form>
+            <div class="footer">
+                <p>Hesabınız yok mu? <a href="/register/">Kayıt Ol</a></p>
             </div>
-        </form>
-        <div class="footer">
-            <p>Hesabınız yok mu? <a href="/register/">Kayıt Ol</a></p>
         </div>
     </div>
 
