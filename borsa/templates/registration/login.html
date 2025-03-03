@@ -117,7 +117,14 @@
             <h2>Giriş Yap</h2>
             <form method="post">
                 {% csrf_token %}
-                {{ form.as_p }}
+                <div>
+                    <label for="username">Kullanıcı Adı</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div>
+                    <label for="password">Şifre</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
                 <button type="submit">Giriş Yap</button>
                 <button type="button" class="back-button" onclick="history.back()">Geri Dön</button>
             </form>
