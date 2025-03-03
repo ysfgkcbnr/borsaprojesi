@@ -92,9 +92,9 @@ class CustomUser(AbstractUser):
         return self.username
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='profile')
+    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
     is_premium = models.BooleanField(default=False)
-
     def __str__(self):
-        return self.user.username
+        return f"{self.user.username}'s Profile"
