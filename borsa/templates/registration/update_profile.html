@@ -134,13 +134,13 @@
 
             <h3>Şifre Güncelleme</h3>
             <label for="old_password">Mevcut Şifre</label>
-            {{ password_form.old_password }}
+            <input type="password" id="old_password" name="old_password" required>
 
             <label for="new_password1">Yeni Şifre</label>
-            {{ password_form.new_password1 }}
+            <input type="password" id="new_password1" name="new_password1" required>
 
             <label for="new_password2">Yeni Şifre (Tekrar)</label>
-            {{ password_form.new_password2 }}
+            <input type="password" id="new_password2" name="new_password2" required>
 
             <button type="submit">Profil Güncelle</button>
         </form>

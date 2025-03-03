@@ -24,28 +24,28 @@ from .forms import UserProfileForm
 from .forms import ProfileUpdateForm, PasswordUpdateForm
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 
-
+@login_required
 def update_profile(request):
     if request.method == 'POST':
         profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
-        password_form = PasswordUpdateForm(user=request.user, data=request.POST)
+        password_form = PasswordChangeForm(user=request.user, data=request.POST)
 
         if profile_form.is_valid() and password_form.is_valid():
-            profile_form.save()
-            user = password_form.save()
-            update_session_auth_hash(request, user)  # Şifre değişikliği sonrası oturumu güncelle
+            profile_form.save()  # Profil resmi güncelle
+            password_form.save()  # Şifreyi güncelle
+            update_session_auth_hash(request, request.user)  # Oturumu güncelle
             return redirect('profile')  # Profil sayfasına yönlendir
 
     else:
         profile_form = ProfileUpdateForm(instance=request.user.profile)
-        password_form = PasswordUpdateForm(user=request.user)
+        password_form = PasswordChangeForm(user=request.user)
 
     return render(request, 'update_profile.html', {
         'profile_form': profile_form,
         'password_form': password_form
     })
-
 @login_required
 def update_profile(request):
     user_profile = UserProfile.objects.get(user=request.user)
