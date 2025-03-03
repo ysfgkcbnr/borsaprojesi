@@ -48,6 +48,22 @@ def update_profile(request):
         'user_profile': user_profile,
         'password_form': password_form
     })
+
+@login_required
+def update_profile(request):
+    user_profile = UserProfile.objects.get(user=request.user)
+
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=user_profile)
+
+        if form.is_valid():
+            form.save()
+            return redirect('profile')  # Kullanıcı profil sayfasına yönlendiriliyor
+
+    else:
+        form = ProfileUpdateForm(instance=user_profile)
+
+    return render(request, 'registration/update_profile.html', {'form': form, 'user_profile': user_profile})
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
