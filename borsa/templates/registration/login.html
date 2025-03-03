@@ -55,6 +55,12 @@
             outline: none;
         }
 
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         button {
             background-color: #007bff;
             color: #fff;
@@ -68,6 +74,14 @@
 
         button:hover {
             background-color: #0056b3;
+        }
+
+        .back-button {
+            background-color: #6c757d;
+        }
+
+        .back-button:hover {
+            background-color: #5a6268;
         }
 
         .footer {
@@ -92,7 +106,10 @@
         <form method="post">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Giriş Yap</button>
+            <div class="buttons">
+                <button type="submit">Giriş Yap</button>
+                <button type="button" class="back-button" onclick="history.back()">Geri Dön</button>
+            </div>
         </form>
         <div class="footer">
             <p>Hesabınız yok mu? <a href="/register/">Kayıt Ol</a></p>
