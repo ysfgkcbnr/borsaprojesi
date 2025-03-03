@@ -23,29 +23,26 @@ from .models import UserProfile
 from .forms import UserProfileForm
 from .forms import ProfileUpdateForm, PasswordUpdateForm
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 
-@login_required
+
 def update_profile(request):
-    user_profile = UserProfile.objects.get(user=request.user)
-
     if request.method == 'POST':
-        # Profil güncellemeyi işle
-        form = ProfileUpdateForm(request.POST, request.FILES, instance=user_profile)
-        password_form = PasswordUpdateForm(request.user, request.POST)
+        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        password_form = PasswordUpdateForm(user=request.user, data=request.POST)
 
-        if form.is_valid() and password_form.is_valid():
-            form.save()
-            password_form.save()
-            messages.success(request, 'Profil ve şifreniz başarıyla güncellendi.')
-            return redirect('profile')  # Kullanıcı profil sayfasına yönlendiriliyor
+        if profile_form.is_valid() and password_form.is_valid():
+            profile_form.save()
+            user = password_form.save()
+            update_session_auth_hash(request, user)  # Şifre değişikliği sonrası oturumu güncelle
+            return redirect('profile')  # Profil sayfasına yönlendir
 
     else:
-        form = ProfileUpdateForm(instance=user_profile)
-        password_form = PasswordUpdateForm(request.user)
+        profile_form = ProfileUpdateForm(instance=request.user.profile)
+        password_form = PasswordUpdateForm(user=request.user)
 
-    return render(request, 'registration/update_profile.html', {
-        'form': form,
-        'user_profile': user_profile,
+    return render(request, 'update_profile.html', {
+        'profile_form': profile_form,
         'password_form': password_form
     })
 

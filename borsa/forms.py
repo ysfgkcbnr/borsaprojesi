@@ -7,6 +7,7 @@ from .models import UserProfile
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 
+
 class AnalysisForm(forms.ModelForm):
     class Meta:
         model = Analysis
@@ -37,6 +38,6 @@ class ProfileUpdateForm(forms.ModelForm):
 
 
 class PasswordUpdateForm(PasswordChangeForm):
-    class Meta:
-        model = User
-        fields = ['password']
+    old_password = forms.CharField(widget=forms.PasswordInput)
+    new_password1 = forms.CharField(widget=forms.PasswordInput)
+    new_password2 = forms.CharField(widget=forms.PasswordInput)
