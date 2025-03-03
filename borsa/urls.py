@@ -3,6 +3,10 @@ from django.contrib.auth import views as auth_views
 from . import views
 from .views import chat_room
 from django.urls import path, include
+from django.conf.urls.static import static
+from django.conf import settings
+
+
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -27,4 +31,4 @@ urlpatterns = [
     path('chat_room/', chat_room, name='chat_room'),
     path('profile/', views.profile, name='profile'),
 
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

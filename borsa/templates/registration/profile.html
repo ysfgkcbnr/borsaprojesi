@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,7 +39,7 @@
             color: #555;
         }
 
-        input[type="text"], input[type="password"], input[type="email"], input[type="file"] {
+        input[type="file"] {
             padding: 10px;
             font-size: 16px;
             border: 1px solid #ddd;
@@ -46,7 +47,7 @@
             transition: border-color 0.3s;
         }
 
-        input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus {
+        input[type="file"]:focus {
             border-color: #007bff;
             outline: none;
         }
@@ -66,11 +67,29 @@
             background-color: #0056b3;
         }
 
+        .profile-image-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .profile-image-container img {
+            border-radius: 8px;
+            max-width: 200px;
+            height: auto;
+        }
+
+        .profile-image-container p {
+            color: #555;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
         /* Üst banner ve mobil uyumluluk için medya sorgusu */
         @media (max-width: 768px) {
             body {
                 padding: 20px;
             }
+
             .container {
                 width: 100%;
                 max-width: 100%;
@@ -78,14 +97,31 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <h2>Profil</h2>
-        <form method="post" enctype="multipart/form-data">
+        <h2>Profil Sayfası</h2>
+        <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Profil Güncelle</button>
+            <button type="submit">Profil Resmini Güncelle</button>
         </form>
+
+        {% if user_profile.profile_picture %}
+        <div class="profile-image-container">
+            <h3>Profil Resminiz</h3>
+            <img src="{{ user_profile.profile_picture.url }}" alt="Profil Resmi">
+        </div>
+        {% else %}
+        <div class="profile-image-container">
+            <p>Henüz bir profil resmi yüklemediniz.</p>
+        </div>
+        {% endif %}
+
+        <div class="profile-image-container">
+            <p>Premium Kullanıcı: {{ user_profile.is_premium }}</p>
+        </div>
     </div>
 </body>
+
 </html>

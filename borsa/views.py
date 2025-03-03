@@ -19,7 +19,7 @@ from django.contrib.auth import login
 from .forms import CustomUserCreationForm
 from django.contrib.auth import authenticate, login
 from .forms import ProfileForm
-
+from .models import UserProfile
 
 def register(request):
     if request.method == 'POST':
@@ -34,17 +34,20 @@ def register(request):
 # Kullanıcı kaydı fonksiyonunu tek bir şekilde tanımlayın:
 @login_required
 def profile(request):
-    user_profile = request.user.userprofile
+    try:
+        user_profile = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        user_profile = UserProfile.objects.create(user=request.user)
+
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=user_profile)
         if form.is_valid():
             form.save()
-            return redirect('profile')  # Sayfayı yenileyerek güncel veriyi göster
+            return redirect('profile')
     else:
         form = ProfileForm(instance=user_profile)
 
     return render(request, 'registration/profile.html', {'form': form, 'user_profile': user_profile})
-
 
 def chat_room(request):
     return render(request, 'registration/chat.html')
