@@ -84,8 +84,17 @@ class Notification(models.Model):
 
 
 class CustomUser(AbstractUser):
+
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)  # Profil resmi
     is_premium = models.BooleanField(default=False)  # Premium kullanıcı mı?
 
     def __str__(self):
         return self.username
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    is_premium = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.user.username

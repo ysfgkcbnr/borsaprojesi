@@ -10,10 +10,6 @@
             background-color: #f2f2f2;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
         }
 
         .container {
@@ -22,58 +18,74 @@
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 600px;
+            max-width: 800px;
+            margin: 50px auto;
         }
 
         h2 {
             text-align: center;
             color: #333;
-            margin-bottom: 20px;
         }
 
-        .profile-info {
+        form {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 20px;
+            gap: 15px;
         }
 
-        .profile-info img {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
+        label {
+            font-size: 14px;
+            color: #555;
         }
 
-        .profile-info p {
+        input[type="text"], input[type="password"], input[type="email"], input[type="file"] {
+            padding: 10px;
             font-size: 16px;
-            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: border-color 0.3s;
         }
 
-        .footer {
-            text-align: center;
-            margin-top: 20px;
+        input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 0;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Üst banner ve mobil uyumluluk için medya sorgusu */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            .container {
+                width: 100%;
+                max-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Profil Sayfası</h2>
-        <div class="profile-info">
-            <!-- Profil Resmi -->
-            {% if user.profile_picture %}
-                <img src="{{ user.profile_picture.url }}" alt="Profile Picture">
-            {% else %}
-                <img src="https://via.placeholder.com/150" alt="Default Profile Picture">
-            {% endif %}
-            <!-- Kullanıcı Bilgileri -->
-            <p><strong>Kullanıcı Adı:</strong> {{ user.username }}</p>
-            <p><strong>E-posta:</strong> {{ user.email }}</p>
-            <p><strong>Premium Kullanıcı:</strong> {% if user.is_premium %}Evet{% else %}Hayır{% endif %}</p>
-        </div>
-        <div class="footer">
-            <a href="/update-profile/">Profil Bilgilerini Güncelle</a>
-        </div>
+        <h2>Profil</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Profil Güncelle</button>
+        </form>
     </div>
 </body>
 </html>

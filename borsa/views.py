@@ -18,19 +18,21 @@ from django.shortcuts import render
 from django.contrib.auth import login
 from .forms import CustomUserCreationForm
 from django.contrib.auth import authenticate, login
+from .forms import ProfileForm
 
 # Kullanıcı kaydı fonksiyonunu tek bir şekilde tanımlayın:
-def register(request):
-    if request.method == "POST":
-        form = CustomUserCreationForm(request.POST)
+@login_required
+def profile(request):
+    user_profile = request.user.userprofile
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=user_profile)
         if form.is_valid():
-            user = form.save()
-            login(request, user)  # Kullanıcıyı otomatik giriş yaptırıyoruz
-            return redirect('/login')
+            form.save()
+            return redirect('profile')  # Sayfayı yenileyerek güncel veriyi göster
     else:
-        form = CustomUserCreationForm()
-    return render(request, 'registration/register.html', {'form': form})
+        form = ProfileForm(instance=user_profile)
 
+    return render(request, 'registration/profile.html', {'form': form, 'user_profile': user_profile})
 @login_required
 def profile(request):
     user = request.user
