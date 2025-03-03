@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-info img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .profile-info p {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Profil Sayfası</h2>
+        <div class="profile-info">
+            <!-- Profil Resmi -->
+            {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url }}" alt="Profile Picture">
+            {% else %}
+                <img src="https://via.placeholder.com/150" alt="Default Profile Picture">
+            {% endif %}
+            <!-- Kullanıcı Bilgileri -->
+            <p><strong>Kullanıcı Adı:</strong> {{ user.username }}</p>
+            <p><strong>E-posta:</strong> {{ user.email }}</p>
+            <p><strong>Premium Kullanıcı:</strong> {% if user.is_premium %}Evet{% else %}Hayır{% endif %}</p>
+        </div>
+        <div class="footer">
+            <a href="/update-profile/">Profil Bilgilerini Güncelle</a>
+        </div>
+    </div>
+</body>
+</html>

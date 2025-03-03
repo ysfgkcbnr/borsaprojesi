@@ -31,6 +31,10 @@ def register(request):
         form = CustomUserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
 
+@login_required
+def profile(request):
+    user = request.user
+    return render(request, 'profile.html', {'user': user})
 
 def chat_room(request):
     return render(request, 'registration/chat.html')

@@ -25,5 +25,6 @@ urlpatterns = [
     path('notifications/', views.notifications, name='notifications'),
     path('premium_analysis_list/', views.premium_analysis_list, name='premium_analysis_list'),
     path('chat_room/', chat_room, name='chat_room'),
+    path('profile/', views.profile, name='profile'),
 
 ]

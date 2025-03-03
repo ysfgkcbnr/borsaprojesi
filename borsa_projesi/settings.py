@@ -44,6 +44,12 @@ LOGIN_REDIRECT_URL = "/analysis/"
 
 AUTH_USER_MODEL = 'borsa.CustomUser'
 
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]  # Eğer static dosyaların bir klasördeyse
+STATIC_ROOT = BASE_DIR / "staticfiles"  # Sunucu için gerekli
+
+
+
 CORS_ALLOWED_ORIGINS = [
     "https://borsaprojesi-1.onrender.com",
 ]
