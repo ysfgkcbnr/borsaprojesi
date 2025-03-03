@@ -17,7 +17,6 @@
             height: 100vh;
         }
 
-        /* Navbar'ın sayfayı örtmesini önlemek için içerik yukarıda başlasın */
         .content {
             margin-top: 80px;
         }
@@ -29,12 +28,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
-        }
-
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
         }
 
         form {
@@ -62,6 +55,8 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             transition: border-color 0.3s;
+            display: block;
+            width: 100%;
         }
 
         input[type="text"]:focus, input[type="password"]:focus {
@@ -105,7 +100,6 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="bg-blue-900 text-white p-4 flex justify-between items-center sticky top-0 w-full z-50">
         <div class="text-xl font-bold">Borsa Platformu</div>
         <button id="menu-toggle" class="md:hidden block text-white focus:outline-none">☰</button>
@@ -119,10 +113,8 @@
         </ul>
     </nav>
 
-    <!-- İçerik Alanı -->
     <div class="content">
         <div class="container">
-            <h2>Giriş Yap</h2>
             <form method="post">
                 {% csrf_token %}
                 <div class="input-group">
