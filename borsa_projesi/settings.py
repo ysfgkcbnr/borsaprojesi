@@ -35,7 +35,7 @@ SECRET_KEY = 'django-insecure-bkx+0x1y_c@#5q4%$7(l60ru1e&h!%abyuu8&kijb9f*ckcd45
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['borsaprojesi-1.onrender.com']
+ALLOWED_HOSTS = ['borsaprojesi-1.onrender.com','127.0.0.1']
 # settings.py
 
 MEDIA_URL = '/media/'

@@ -27,48 +27,12 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 import yfinance as yf
 from django.shortcuts import render
-
+from .get_stock_data import fetch_stock_data
 
 def index(request):
-    # Hisse senedi sembollerini belirleyin
-    tickers = ['THYAO.IS', 'GARAN.IS', 'SAHOL.IS']
-
-    # Verileri çekmek için bir sözlük oluşturuyoruz
-    data = {}
-
-    for ticker in tickers:
-        # Yfinance ile hisse verisini çekiyoruz
-        try:
-            df = yf.download(ticker, period='1d', interval='1m')
-
-            if df.empty:
-                print(f"{ticker} için veri bulunamadı!")
-                continue
-
-            print(df.head())  # DataFrame'in ilk 5 satırını yazdır
-
-            # Fiyat değişim oranını ekliyoruz
-            df['Price Change (%)'] = df['Close'].pct_change() * 100
-
-            # NaN değerleri temizliyoruz
-            df = df.dropna(subset=['Price Change (%)'])
-
-            # Son satırdaki veriyi alıyoruz (en son kapanış fiyatı ve diğer veriler)
-            latest_data = df.iloc[-1]
-
-            # Veriyi dictionary'ye ekliyoruz
-            data[ticker] = {
-                'close': latest_data['Close'],
-                'price_change': latest_data['Price Change (%)'],
-                'volume': latest_data['Volume'],
-            }
-        except Exception as e:
-            print(f"{ticker} veri çekme hatası: {e}")
-            continue
-
-    # Verileri render ederken 'data' isimli dictionary'yi şablona gönderiyoruz
-    return render(request, 'index.html', {'data': data})
-
+    ticker = 'THYAO.IS'  # Kullanıcıdan alınabilir
+    stock_data = fetch_stock_data(ticker)
+    return render(request, 'index.html', {'data': stock_data})
 
 @login_required
 def update_profile(request):

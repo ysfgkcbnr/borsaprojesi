@@ -38,7 +38,7 @@
                     {% for ticker, values in data.items %}
                         <tr class="text-center">
                             <td class="border p-2">{{ ticker }}</td>
-                            <td class="border p-2">${{ values.close }}</td>
+                            <td class="border p-2">{{ values.close }}</td>
                             <td class="border p-2">{{ values.price_change|floatformat:2 }}%</td>
                             <td class="border p-2">{{ values.volume }}</td>
                         </tr>
@@ -51,7 +51,7 @@
     <script>
         // Mobil Menü Aç/Kapa
         document.getElementById('menu-toggle').addEventListener('click', function() {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
+            document.getElementById('menu').classList.toggle('hidden');
         });
     </script>
 </body>
