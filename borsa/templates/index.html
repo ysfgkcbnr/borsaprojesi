@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anasayfa | Borsa Platformu</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+
 <body class="bg-gray-100">
     <nav class="bg-blue-900 text-white p-4 flex justify-between items-center sticky top-0 z-50">
         <div class="text-xl font-bold">Borsa Platformu</div>
-        <button id="menu-toggle" class="md:hidden block text-white focus:outline-none">☰</button>
-        <ul id="menu" class="hidden md:flex space-x-6">
+        <ul class="flex space-x-6">
             <li><a href="#" class="hover:text-gray-300">Anasayfa</a></li>
             <li><a href="analysis" class="hover:text-gray-300">Teknik Analiz</a></li>
             <li><a href="#" class="hover:text-gray-300">Haberler</a></li>
@@ -30,48 +29,31 @@
                 <thead>
                     <tr class="bg-gray-200">
                         <th class="border p-2">Hisse</th>
-                        <th class="border p-2">Fiyat</th>
-                        <th class="border p-2">Değişim (%)</th>
+                        <th class="border p-2">Açılış Fiyatı</th>
+                        <th class="border p-2">Kapanış Fiyatı</th>
+                        <th class="border p-2">Yüksek Fiyat</th>
+                        <th class="border p-2">Düşük Fiyat</th>
                         <th class="border p-2">Hacim</th>
+                        <th class="border p-2">Zaman</th>
                     </tr>
                 </thead>
-                <tbody id="stock-data">
-                    <tr class="text-center">
-                        <td class="border p-2" id="ticker">{{ stock_data.symbol }}</td>
-                        <td class="border p-2" id="close-price">{{ stock_data.close_price }}</td>
-                        <td class="border p-2" id="price-change">{{ stock_data.price_change }}%</td>
-                        <td class="border p-2" id="volume">{{ stock_data.volume }}</td>
-                    </tr>
+                <tbody>
+                    {% for stock in data %}
+                        <tr class="text-center">
+                            <td class="border p-2">{{ stock.symbol }}</td>
+                            <td class="border p-2">{{ stock.open_price }}</td>
+                            <td class="border p-2">{{ stock.close_price }}</td>
+                            <td class="border p-2">{{ stock.high_price }}</td>
+                            <td class="border p-2">{{ stock.low_price }}</td>
+                            <td class="border p-2">{{ stock.volume }}</td>
+                            <td class="border p-2">{{ stock.timestamp }}</td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 
-    <script>
-        // Mobil Menü Aç/Kapa
-        document.getElementById('menu-toggle').addEventListener('click', function() {
-            document.getElementById('menu').classList.toggle('hidden');
-        });
-
-        // Hisse verilerini her dakika güncelle
-        function fetchStockData() {
-            $.ajax({
-                url: "/update-stock-data/",  // Update verilerini çekecek URL
-                method: "GET",
-                success: function(response) {
-                    // Yeni verileri tabloya yerleştir
-                    $('#close-price').text(response.close_price);
-                    $('#price-change').text(response.price_change.toFixed(2) + '%');
-                    $('#volume').text(response.volume);
-                },
-                error: function() {
-                    alert("Veri güncellenemedi.");
-                }
-            });
-        }
-
-        // Hisse verisini her dakika bir kez güncelle
-        setInterval(fetchStockData, 60000); // 60000 ms = 1 dakika
-    </script>
 </body>
+
 </html>

@@ -25,89 +25,36 @@ from .forms import ProfileUpdateForm, PasswordUpdateForm
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-import yfinance as yf
+# views.py
 from django.shortcuts import render
+import yfinance as yf
 from .models import StockData
 from datetime import datetime
-from django.http import JsonResponse
 
-
-# Hisse verilerini her dakika güncelleyen view
-def update_stock_data(request):
-    # THYAO.IS sembolü ile hisseyi yfinance ile çek
-    stock = yf.Ticker("THYAO.IS")
-
-    # Son 1 dakikadaki veriyi al
-    hist = stock.history(period="1d", interval="1m")
-
-    # Verileri kaydet
-    try:
-        for date, data in hist.iterrows():
-            stock_data, created = StockData.objects.update_or_create(
-                symbol="THYAO",
-                timestamp=datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S"),
-                defaults={
-                    'open_price': data['Open'],
-                    'close_price': data['Close'],
-                    'high_price': data['High'],
-                    'low_price': data['Low'],
-                    'volume': data['Volume'],
-                }
-            )
-            # Loglama (başarı durumu)
-            print(
-                f"Veri {'yeni oluşturuldu' if created else 'güncellendi'}: {stock_data.timestamp} - {stock_data.close_price}")
-
-        # En son veriyi JSON formatında döndür
-        latest_data = StockData.objects.filter(symbol="THYAO").order_by('-timestamp').first()
-
-        if latest_data:
-            response_data = {
-                'symbol': latest_data.symbol,
-                'close_price': latest_data.close_price,
-                'price_change': ((latest_data.close_price - latest_data.open_price) / latest_data.open_price) * 100,
-                'volume': latest_data.volume,
-            }
-        else:
-            response_data = {
-                'symbol': 'THYAO',
-                'close_price': 'Veri Yükleniyor...',
-                'price_change': 'Veri Yükleniyor...',
-                'volume': 'Veri Yükleniyor...',
-            }
-
-        return JsonResponse(response_data)
-    except Exception as e:
-        # Hata durumunda
-        return JsonResponse({'error': str(e)}, status=500)
-
-
-# Anasayfa için view
 def index(request):
-    # İlk veriyi çekip anasayfaya göndermek için
-    stock_data = StockData.objects.filter(symbol="THYAO").order_by('-timestamp').first()
+    # Veriyi Yahoo Finance'den çekelim
+    ticker = "THYAO.IS"
+    stock = yf.Ticker(ticker)
+    data = stock.history(period="1d")  # Veriyi 1 günlük olarak çekiyoruz
 
-    # Veriler yoksa, başlangıç verisi olarak "Veri Yükleniyor..." mesajını gönder
-    if stock_data:
-        context = {
-            'stock_data': {
-                'symbol': stock_data.symbol,
-                'close_price': stock_data.close_price,
-                'price_change': ((stock_data.close_price - stock_data.open_price) / stock_data.open_price) * 100,
-                'volume': stock_data.volume,
-            }
+    # Veriyi veritabanına kaydedelim
+    StockData.objects.update_or_create(
+        symbol=ticker,
+        defaults={
+            'open_price': data['Open'][0],
+            'close_price': data['Close'][0],
+            'high_price': data['High'][0],
+            'low_price': data['Low'][0],
+            'volume': data['Volume'][0],
+            'timestamp': data.index[0]
         }
-    else:
-        context = {
-            'stock_data': {
-                'symbol': 'THYAO',
-                'close_price': 'Veri Yükleniyor...',
-                'price_change': 'Veri Yükleniyor...',
-                'volume': 'Veri Yükleniyor...',
-            }
-        }
+    )
 
-    return render(request, 'index.html', context)
+    # Veriyi anasayfada göstereceğiz
+    stock_data = StockData.objects.all()
+
+    return render(request, 'index.html', {'data': stock_data})
+
 
 
 @login_required
