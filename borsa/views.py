@@ -32,33 +32,48 @@ import yfinance as yf
 from .models import Hisse
 
 def borsa_anasayfa(request):
-    # BIST 100 verisini çek
-    bist = yf.Ticker("XU100.IS")
-    tarih_veri = bist.history(period="1d")
+    print("View başladı!")
+    try:
+        # BIST 100 verisini çek
+        bist = yf.Ticker("XU100.IS")
+        tarih_veri = bist.history(period="1d")
+        print("Çekilen veri:", tarih_veri)
 
-    # Veriyi modele kaydet (eğer yoksa güncelle)
-    hisse, created = Hisse.objects.get_or_create(
-        sembol="XU100.IS",
-        defaults={
-            'acilis_fiyati': round(tarih_veri['Open'].iloc[-1], 2),
-            'kapanis_fiyati': round(tarih_veri['Close'].iloc[-1], 2),
-            'yuksek_fiyat': round(tarih_veri['High'].iloc[-1], 2),
-            'dusuk_fiyat': round(tarih_veri['Low'].iloc[-1], 2),
-            'hacim': int(tarih_veri['Volume'].iloc[-1]),
-        }
-    )
-    if not created:  # Eğer hisse zaten varsa, güncelle
-        hisse.acilis_fiyati = round(tarih_veri['Open'].iloc[-1], 2)
-        hisse.kapanis_fiyati = round(tarih_veri['Close'].iloc[-1], 2)
-        hisse.yuksek_fiyat = round(tarih_veri['High'].iloc[-1], 2)
-        hisse.dusuk_fiyat = round(tarih_veri['Low'].iloc[-1], 2)
-        hisse.hacim = int(tarih_veri['Volume'].iloc[-1])
-        hisse.save()
+        if tarih_veri.empty:
+            print("Veri boş geldi!")
+            data = []
+        else:
+            # Veriyi modele kaydet
+            hisse, created = Hisse.objects.get_or_create(
+                sembol="XU100.IS",
+                defaults={
+                    'acilis_fiyati': round(tarih_veri['Open'].iloc[-1], 2),
+                    'kapanis_fiyati': round(tarih_veri['Close'].iloc[-1], 2),
+                    'yuksek_fiyat': round(tarih_veri['High'].iloc[-1], 2),
+                    'dusuk_fiyat': round(tarih_veri['Low'].iloc[-1], 2),
+                    'hacim': int(tarih_veri['Volume'].iloc[-1]),
+                }
+            )
+            if not created:
+                print("Hisse zaten var, güncelleniyor...")
+                hisse.acilis_fiyati = round(tarih_veri['Open'].iloc[-1], 2)
+                hisse.kapanis_fiyati = round(tarih_veri['Close'].iloc[-1], 2)
+                hisse.yuksek_fiyat = round(tarih_veri['High'].iloc[-1], 2)
+                hisse.dusuk_fiyat = round(tarih_veri['Low'].iloc[-1], 2)
+                hisse.hacim = int(tarih_veri['Volume'].iloc[-1])
+                hisse.save()
+            else:
+                print("Yeni hisse oluşturuldu!")
 
-    # Veritabanından tüm hisseleri çek
-    data = Hisse.objects.all()
+            # Veritabanından veriyi çek
+            data = Hisse.objects.all()
+            print("Veritabanındaki veriler:", list(data))
 
-    return render(request, 'index.html', {'data': data})
+    except Exception as e:
+        print("Hata oluştu:", str(e))
+        data = []
+
+    return render(request, 'borsa/index.html', {'data': data})
 
 
 @login_required
@@ -307,4 +322,4 @@ def custom_login(request):
         else:
             return render(request, "login.html", {"error": "Geçersiz kullanıcı adı veya şifre"})
 
-    return render(request, "login.html")
+    return render(request, "registration/login.html")
