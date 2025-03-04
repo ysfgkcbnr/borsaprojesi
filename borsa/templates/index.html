@@ -8,12 +8,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100">
-    <!-- Navbar -->
     <nav class="bg-blue-900 text-white p-4 flex justify-between items-center sticky top-0 z-50">
         <div class="text-xl font-bold">Borsa Platformu</div>
-        <button id="menu-toggle" class="md:hidden block text-white focus:outline-none">
-            ☰
-        </button>
+        <button id="menu-toggle" class="md:hidden block text-white focus:outline-none">☰</button>
         <ul id="menu" class="hidden md:flex space-x-6">
             <li><a href="#" class="hover:text-gray-300">Anasayfa</a></li>
             <li><a href="analysis" class="hover:text-gray-300">Teknik Analiz</a></li>
@@ -24,18 +21,6 @@
         </ul>
     </nav>
 
-    <!-- Mobil Menü -->
-    <div id="mobile-menu" class="hidden md:hidden bg-blue-900 text-white p-4 fixed w-full top-16 z-40">
-        <ul>
-            <li class="py-2"><a href="#" class="block">Anasayfa</a></li>
-            <li class="py-2"><a href="#" class="block">Hisse Senetleri</a></li>
-            <li class="py-2"><a href="#" class="block">Teknik Analiz</a></li>
-            <li class="py-2"><a href="#" class="block">Haberler</a></li>
-            <li class="py-2"><a href="#" class="block">Premium</a></li>
-            <li class="py-2"><a href="#" class="block">Profil</a></li>
-        </ul>
-    </div>
-
     <div class="container mx-auto p-6 pt-20">
         <!-- Borsa Verileri -->
         <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
@@ -45,29 +30,21 @@
                     <tr class="bg-gray-200">
                         <th class="border p-2">Hisse</th>
                         <th class="border p-2">Fiyat</th>
-                        <th class="border p-2">Değişim</th>
+                        <th class="border p-2">Değişim (%)</th>
+                        <th class="border p-2">Hacim</th>
                     </tr>
                 </thead>
-                <tbody id="borsa-table">
-                    {% for ticker, df in data.items() %}
-                        {% for row in df.itertuples() %}
-                            <tr class="text-center">
-                                <td class="border p-2">{{ ticker }}</td>
-                                <td class="border p-2">${{ row.Close }}</td>
-                                <td class="border p-2 {% if row._2 > 0 %}text-green-600{% else %}text-red-600{% endif %}">
-                                    {% if row._2 > 0 %}+{{ row._2 | round(2) }}%{% else %}{{ row._2 | round(2) }}%{% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
+                <tbody>
+                    {% for ticker, df in data.items %}
+                        <tr class="text-center">
+                            <td class="border p-2">{{ ticker }}</td>
+                            <td class="border p-2">${{ df['Close'].iloc[-1] }}</td>  <!-- Son kapanış fiyatını gösteriyoruz -->
+                            <td class="border p-2">{{ df['Price Change (%)'].iloc[-1]|floatformat:2 }}%</td>  <!-- Son fiyat değişim oranını gösteriyoruz -->
+                            <td class="border p-2">{{ df['Volume'].iloc[-1] }}</td>  <!-- Son hacim bilgisini gösteriyoruz -->
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
-
-        <!-- Grafik Alanı -->
-        <div class="bg-white shadow-lg rounded-lg p-6">
-            <h2 class="text-xl font-semibold mb-4">Hisse Senedi Grafiği</h2>
-            <canvas id="borsaChart"></canvas>
         </div>
     </div>
 
@@ -75,25 +52,6 @@
         // Mobil Menü Aç/Kapa
         document.getElementById('menu-toggle').addEventListener('click', function() {
             document.getElementById('mobile-menu').classList.toggle('hidden');
-        });
-
-        // Grafik verilerini dinamik hale getirme
-        var ctx = document.getElementById('borsaChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'],
-                datasets: [{
-                    label: 'AAPL Hissesi',
-                    data: [150, 152, 149, 153, 155],  // Burada dilediğiniz veriyle güncelleme yapın.
-                    borderColor: 'blue',
-                    borderWidth: 2,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-            }
         });
     </script>
 </body>
