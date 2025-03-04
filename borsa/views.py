@@ -27,12 +27,48 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 import yfinance as yf
 from django.shortcuts import render
-from .get_stock_data import fetch_stock_data
+from .models import StockData
+from datetime import datetime
+from django.http import JsonResponse
 
-def index(request):
-    ticker = 'THYAO.IS'  # Kullanıcıdan alınabilir
-    stock_data = fetch_stock_data(ticker)
-    return render(request, 'index.html', {'data': stock_data})
+
+# Hisse verilerini her dakika güncelleyecek view
+def update_stock_data(request):
+    # THYAO hissesini yfinance ile çek
+    stock = yf.Ticker("THYAO.IS")
+
+    # Son 1 dakikadaki veriyi al
+    hist = stock.history(period="1d", interval="1m")
+
+    # Verileri kaydet
+    for date, data in hist.iterrows():
+        StockData.objects.update_or_create(
+            symbol="THYAO",
+            timestamp=datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S"),
+            defaults={
+                'open_price': data['Open'],
+                'close_price': data['Close'],
+                'high_price': data['High'],
+                'low_price': data['Low'],
+                'volume': data['Volume'],
+            }
+        )
+
+    # Verileri JSON formatında döndür
+    latest_data = StockData.objects.filter(symbol="THYAO").order_by('-timestamp').first()
+
+    response_data = {
+        'symbol': latest_data.symbol,
+        'close_price': latest_data.close_price,
+        'price_change': ((latest_data.close_price - latest_data.open_price) / latest_data.open_price) * 100,
+        'volume': latest_data.volume,
+    }
+
+    return JsonResponse(response_data)
+
+
+
+
 
 @login_required
 def update_profile(request):

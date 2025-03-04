@@ -6,6 +6,7 @@
     <title>Anasayfa | Borsa Platformu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg-gray-100">
     <nav class="bg-blue-900 text-white p-4 flex justify-between items-center sticky top-0 z-50">
@@ -34,15 +35,13 @@
                         <th class="border p-2">Hacim</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for ticker, values in data.items %}
-                        <tr class="text-center">
-                            <td class="border p-2">{{ ticker }}</td>
-                            <td class="border p-2">{{ values.close }}</td>
-                            <td class="border p-2">{{ values.price_change|floatformat:2 }}%</td>
-                            <td class="border p-2">{{ values.volume }}</td>
-                        </tr>
-                    {% endfor %}
+                <tbody id="stock-data">
+                    <tr class="text-center">
+                        <td class="border p-2" id="ticker">THYAO</td>
+                        <td class="border p-2" id="close-price">Veri Yükleniyor...</td>
+                        <td class="border p-2" id="price-change">Veri Yükleniyor...</td>
+                        <td class="border p-2" id="volume">Veri Yükleniyor...</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -53,6 +52,26 @@
         document.getElementById('menu-toggle').addEventListener('click', function() {
             document.getElementById('menu').classList.toggle('hidden');
         });
+
+        // Hisse verilerini her dakika güncelle
+        function fetchStockData() {
+            $.ajax({
+                url: "/update-stock-data/",
+                method: "GET",
+                success: function(response) {
+                    // Yeni verileri tabloya yerleştir
+                    $('#close-price').text(response.close_price);
+                    $('#price-change').text(response.price_change.toFixed(2) + '%');
+                    $('#volume').text(response.volume);
+                },
+                error: function() {
+                    alert("Veri güncellenemedi.");
+                }
+            });
+        }
+
+        // Hisse verisini her dakika bir kez güncelle
+        setInterval(fetchStockData, 60000); // 60000 ms = 1 dakika
     </script>
 </body>
 </html>
