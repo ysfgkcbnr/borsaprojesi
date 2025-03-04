@@ -32,9 +32,9 @@ from datetime import datetime
 from django.http import JsonResponse
 
 
-# Hisse verilerini her dakika güncelleyecek view
+# Hisse verilerini her dakika güncelleyen view
 def update_stock_data(request):
-    # THYAO hissesini yfinance ile çek
+    # THYAO.IS sembolü ile hisseyi yfinance ile çek
     stock = yf.Ticker("THYAO.IS")
 
     # Son 1 dakikadaki veriyi al
@@ -54,10 +54,9 @@ def update_stock_data(request):
             }
         )
 
-    # Veriyi JSON formatında döndür
+    # En son veriyi JSON formatında döndür
     latest_data = StockData.objects.filter(symbol="THYAO").order_by('-timestamp').first()
 
-    # İlk veri ile birlikte de gösterilecek response
     if latest_data:
         response_data = {
             'symbol': latest_data.symbol,
