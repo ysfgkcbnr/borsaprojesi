@@ -34,33 +34,42 @@ from .models import Hisse2
 def borsa_anasayfa(request):
     print("View çalışıyor aga!")
     try:
-        bist = yf.Ticker("XU100.IS")
-        tarih_veri = bist.history(period="2d")  # 2 gün veri çek
-        print("Çekilen veri:", tarih_veri)
+        # Hisse senedi sembolleri listesi
+        hisse_sembolleri = {
+            "XU100.IS": "XU100",  # Sembol: Görünecek isim
+            "GARAN.IS": "GARAN",
+            "THYAO.IS": "THYAO",
+            # İstediğin kadar hisse ekleyebilirsin: "SEMBOL": "AD"
+        }
 
-        if not tarih_veri.empty and len(tarih_veri) >= 2:
-            onceki_kapanis = tarih_veri['Close'].iloc[-2]  # Dünkü kapanış
-            bugunku_kapanis = tarih_veri['Close'].iloc[-1]  # Bugünkü kapanış
-            degisim_yuzdesi = ((bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
+        for sembol, isim in hisse_sembolleri.items():
+            ticker = yf.Ticker(sembol)
+            tarih_veri = ticker.history(period="2d")
+            print(f"{isim} için çekilen veri:", tarih_veri)
 
-            hisse, created = Hisse2.objects.get_or_create(
-                isim="XU100",  # Mevcut veritabanına uyumlu
-                defaults={
-                    'fiyat': round(bugunku_kapanis, 2),
-                    'fiyat_degisim_yuzdesi': round(degisim_yuzdesi, 2),
-                    'hacim': int(tarih_veri['Volume'].iloc[-1]),
-                }
-            )
-            if not created:
-                hisse.fiyat = round(bugunku_kapanis, 2)
-                hisse.fiyat_degisim_yuzdesi = round(degisim_yuzdesi, 2)
-                hisse.hacim = int(tarih_veri['Volume'].iloc[-1])
-                hisse.save()
-            data = Hisse2.objects.all()
-            print("Veritabanındaki veriler:", list(data))
-        else:
-            print("Veri eksik aga!")
-            data = []
+            if not tarih_veri.empty and len(tarih_veri) >= 2:
+                onceki_kapanis = tarih_veri['Close'].iloc[-2]
+                bugunku_kapanis = tarih_veri['Close'].iloc[-1]
+                degisim_yuzdesi = ((
+                                               bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
+
+                hisse, created = Hisse2.objects.get_or_create(
+                    isim=isim,  # Veritabanında görünecek isim (XU100, GARAN, vb.)
+                    defaults={
+                        'fiyat': round(bugunku_kapanis, 2),
+                        'fiyat_degisim_yuzdesi': round(degisim_yuzdesi, 2),
+                        'hacim': int(tarih_veri['Volume'].iloc[-1]),
+                    }
+                )
+                if not created:
+                    hisse.fiyat = round(bugunku_kapanis, 2)
+                    hisse.fiyat_degisim_yuzdesi = round(degisim_yuzdesi, 2)
+                    hisse.hacim = int(tarih_veri['Volume'].iloc[-1])
+                    hisse.save()
+                print(f"{isim} güncellendi!")
+
+        data = Hisse2.objects.all()
+        print("Veritabanındaki veriler:", list(data))
     except Exception as e:
         print("Hata var aga:", str(e))
         data = []

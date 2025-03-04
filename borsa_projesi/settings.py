@@ -56,6 +56,7 @@ CORS_ALLOWED_ORIGINS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.humanize',
     'borsa',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -64,6 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'channels',
+
 ]
 
 MIDDLEWARE = [
