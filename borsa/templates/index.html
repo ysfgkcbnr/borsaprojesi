@@ -38,13 +38,13 @@
                 <tbody>
                     {% for stock in data %}
                         <tr class="text-center hover:bg-gray-50">
-                            <td class="border p-2">{{ stock.symbol }}</td>
-                            <td class="border p-2">{{ stock.open_price }} TL</td>
-                            <td class="border p-2">{{ stock.close_price }} TL</td>
-                            <td class="border p-2">{{ stock.high_price }} TL</td>
-                            <td class="border p-2">{{ stock.low_price }} TL</td>
-                            <td class="border p-2">{{ stock.volume }}</td>
-                            <td class="border p-2">{{ stock.timestamp }}</td>
+                            <td class="border p-2">{{ stock.sembol }}</td>
+                            <td class="border p-2">{{ stock.acilis_fiyati }} TL</td>
+                            <td class="border p-2">{{ stock.kapanis_fiyati }} TL</td>
+                            <td class="border p-2">{{ stock.yuksek_fiyat }} TL</td>
+                            <td class="border p-2">{{ stock.dusuk_fiyat }} TL</td>
+                            <td class="border p-2">{{ stock.hacim }}</td>
+                            <td class="border p-2">{{ stock.zaman }}</td>
                         </tr>
                     {% empty %}
                         <tr>

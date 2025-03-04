@@ -6,14 +6,20 @@ from django.db import models
 
 
 class Hisse(models.Model):
-    sembol = models.CharField(max_length=10)
-    ad = models.CharField(max_length=100)
-    fiyat = models.FloatField()
-    tarih = models.DateTimeField(auto_now_add=True)
+    sembol = models.CharField(max_length=10, unique=True)  # Hisse sembolü (ör. XU100.IS)
+    acilis_fiyati = models.FloatField()  # Açılış fiyatı
+    kapanis_fiyati = models.FloatField()  # Kapanış fiyatı
+    yuksek_fiyat = models.FloatField()   # Günün en yüksek fiyatı
+    dusuk_fiyat = models.FloatField()    # Günün en düşük fiyatı
+    hacim = models.BigIntegerField()     # İşlem hacmi
+    zaman = models.DateTimeField(auto_now=True)  # Veri güncelleme zamanı
 
     def __str__(self):
-        return self.ad
+        return self.sembol
 
+    class Meta:
+        verbose_name = "Hisse"
+        verbose_name_plural = "Hisseler"
 
 
 

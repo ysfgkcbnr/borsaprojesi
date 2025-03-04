@@ -29,23 +29,34 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render
 import yfinance as yf
 
+from .models import Hisse
+
 def borsa_anasayfa(request):
     # BIST 100 verisini çek
     bist = yf.Ticker("XU100.IS")
-    tarih_veri = bist.history(period="1d")  # Günlük veri
+    tarih_veri = bist.history(period="1d")
 
-    # Tablo için veriyi hazırla
-    data = [
-        {
-            'symbol': 'XU100.IS',
-            'open_price': round(tarih_veri['Open'].iloc[-1], 2),  # Açılış fiyatı
-            'close_price': round(tarih_veri['Close'].iloc[-1], 2),  # Kapanış fiyatı
-            'high_price': round(tarih_veri['High'].iloc[-1], 2),   # Yüksek fiyat
-            'low_price': round(tarih_veri['Low'].iloc[-1], 2),    # Düşük fiyat
-            'volume': int(tarih_veri['Volume'].iloc[-1]),         # Hacim
-            'timestamp': tarih_veri.index[-1].strftime('%Y-%m-%d %H:%M:%S'),  # Zaman
+    # Veriyi modele kaydet (eğer yoksa güncelle)
+    hisse, created = Hisse.objects.get_or_create(
+        sembol="XU100.IS",
+        defaults={
+            'acilis_fiyati': round(tarih_veri['Open'].iloc[-1], 2),
+            'kapanis_fiyati': round(tarih_veri['Close'].iloc[-1], 2),
+            'yuksek_fiyat': round(tarih_veri['High'].iloc[-1], 2),
+            'dusuk_fiyat': round(tarih_veri['Low'].iloc[-1], 2),
+            'hacim': int(tarih_veri['Volume'].iloc[-1]),
         }
-    ]
+    )
+    if not created:  # Eğer hisse zaten varsa, güncelle
+        hisse.acilis_fiyati = round(tarih_veri['Open'].iloc[-1], 2)
+        hisse.kapanis_fiyati = round(tarih_veri['Close'].iloc[-1], 2)
+        hisse.yuksek_fiyat = round(tarih_veri['High'].iloc[-1], 2)
+        hisse.dusuk_fiyat = round(tarih_veri['Low'].iloc[-1], 2)
+        hisse.hacim = int(tarih_veri['Volume'].iloc[-1])
+        hisse.save()
+
+    # Veritabanından tüm hisseleri çek
+    data = Hisse.objects.all()
 
     return render(request, 'index.html', {'data': data})
 
