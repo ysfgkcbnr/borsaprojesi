@@ -35,12 +35,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for ticker, df in data.items %}
+                    {% for ticker, values in data.items %}
                         <tr class="text-center">
                             <td class="border p-2">{{ ticker }}</td>
-                            <td class="border p-2">${{ df['Close'].iloc[-1] }}</td>  <!-- Son kapanış fiyatını gösteriyoruz -->
-                            <td class="border p-2">{{ df['Price Change (%)'].iloc[-1]|floatformat:2 }}%</td>  <!-- Son fiyat değişim oranını gösteriyoruz -->
-                            <td class="border p-2">{{ df['Volume'].iloc[-1] }}</td>  <!-- Son hacim bilgisini gösteriyoruz -->
+                            <td class="border p-2">${{ values.close }}</td>
+                            <td class="border p-2">{{ values.price_change|floatformat:2 }}%</td>
+                            <td class="border p-2">{{ values.volume }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
