@@ -28,53 +28,43 @@ from django.contrib.auth.forms import PasswordChangeForm
 # views.py
 from django.shortcuts import render
 import yfinance as yf
+from .models import Hisse2
 
-from .models import Hisse
 
 def borsa_anasayfa(request):
-    print("View başladı!")
+    print("View çalışıyor aga!")
     try:
-        # BIST 100 verisini çek
         bist = yf.Ticker("XU100.IS")
-        tarih_veri = bist.history(period="1d")
+        tarih_veri = bist.history(period="2d")  # 2 gün veri çek
         print("Çekilen veri:", tarih_veri)
 
-        if tarih_veri.empty:
-            print("Veri boş geldi!")
-            data = []
-        else:
-            # Veriyi modele kaydet
-            hisse, created = Hisse.objects.get_or_create(
-                sembol="XU100.IS",
+        if not tarih_veri.empty and len(tarih_veri) >= 2:
+            onceki_kapanis = tarih_veri['Close'].iloc[-2]  # Dünkü kapanış
+            bugunku_kapanis = tarih_veri['Close'].iloc[-1]  # Bugünkü kapanış
+            degisim_yuzdesi = ((bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
+
+            hisse, created = Hisse2.objects.get_or_create(
+                isim="XU100",  # Mevcut veritabanına uyumlu
                 defaults={
-                    'acilis_fiyati': round(tarih_veri['Open'].iloc[-1], 2),
-                    'kapanis_fiyati': round(tarih_veri['Close'].iloc[-1], 2),
-                    'yuksek_fiyat': round(tarih_veri['High'].iloc[-1], 2),
-                    'dusuk_fiyat': round(tarih_veri['Low'].iloc[-1], 2),
+                    'fiyat': round(bugunku_kapanis, 2),
+                    'fiyat_degisim_yuzdesi': round(degisim_yuzdesi, 2),
                     'hacim': int(tarih_veri['Volume'].iloc[-1]),
                 }
             )
             if not created:
-                print("Hisse zaten var, güncelleniyor...")
-                hisse.acilis_fiyati = round(tarih_veri['Open'].iloc[-1], 2)
-                hisse.kapanis_fiyati = round(tarih_veri['Close'].iloc[-1], 2)
-                hisse.yuksek_fiyat = round(tarih_veri['High'].iloc[-1], 2)
-                hisse.dusuk_fiyat = round(tarih_veri['Low'].iloc[-1], 2)
+                hisse.fiyat = round(bugunku_kapanis, 2)
+                hisse.fiyat_degisim_yuzdesi = round(degisim_yuzdesi, 2)
                 hisse.hacim = int(tarih_veri['Volume'].iloc[-1])
                 hisse.save()
-            else:
-                print("Yeni hisse oluşturuldu!")
-
-            # Veritabanından veriyi çek
-            data = Hisse.objects.all()
+            data = Hisse2.objects.all()
             print("Veritabanındaki veriler:", list(data))
-
+        else:
+            print("Veri eksik aga!")
+            data = []
     except Exception as e:
-        print("Hata oluştu:", str(e))
+        print("Hata var aga:", str(e))
         data = []
-
-    return render(request, 'borsa/index.html', {'data': data})
-
+    return render(request, 'index.html', {'data': data})
 
 @login_required
 def update_profile(request):
@@ -266,8 +256,7 @@ def delete_comment(request, comment_id):
 def custom_logout(request):
     logout(request)
     return redirect('login')
-def index(request):
-    return render(request, 'index.html')
+
 
 def about(request):
     return HttpResponse("Bu, borsa ile ilgili bir projedir.")

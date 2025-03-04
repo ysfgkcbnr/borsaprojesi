@@ -20,40 +20,52 @@
     </nav>
 
     <div class="container mx-auto p-6 pt-20">
-        <!-- Borsa Verileri -->
         <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
             <h2 class="text-xl font-semibold mb-4">Canlı Borsa Verileri</h2>
             <table class="w-full border-collapse border border-gray-300 text-sm">
                 <thead>
                     <tr class="bg-gray-200">
-                        <th class="border p-2">Hisse</th>
-                        <th class="border p-2">Açılış Fiyatı</th>
-                        <th class="border p-2">Kapanış Fiyatı</th>
-                        <th class="border p-2">Yüksek Fiyat</th>
-                        <th class="border p-2">Düşük Fiyat</th>
+                        <th class="border p-2">Hisse Adı</th>
+                        <th class="border p-2">Fiyat</th>
+                        <th class="border p-2">Fiyat Değişim (%)</th>
                         <th class="border p-2">Hacim</th>
-                        <th class="border p-2">Zaman</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="borsa-tablo">
                     {% for stock in data %}
                         <tr class="text-center hover:bg-gray-50">
-                            <td class="border p-2">{{ stock.sembol }}</td>
-                            <td class="border p-2">{{ stock.acilis_fiyati }} TL</td>
-                            <td class="border p-2">{{ stock.kapanis_fiyati }} TL</td>
-                            <td class="border p-2">{{ stock.yuksek_fiyat }} TL</td>
-                            <td class="border p-2">{{ stock.dusuk_fiyat }} TL</td>
+                            <td class="border p-2">{{ stock.isim }}</td>
+                            <td class="border p-2">{{ stock.fiyat }} TL</td>
+                            <td class="border p-2 {% if stock.fiyat_degisim_yuzdesi > 0 %}text-green-500{% elif stock.fiyat_degisim_yuzdesi < 0 %}text-red-500{% endif %}">
+                                {{ stock.fiyat_degisim_yuzdesi }}%
+                            </td>
                             <td class="border p-2">{{ stock.hacim }}</td>
-                            <td class="border p-2">{{ stock.zaman }}</td>
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="7" class="border p-2 text-center text-gray-500">Henüz veri yok.</td>
+                            <td colspan="4" class="border p-2 text-center text-gray-500">Henüz veri yok.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+
+    <!-- Otomatik Güncelleme için JavaScript -->
+    <script>
+        function guncelleTablo() {
+            fetch(window.location.href)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const yeniTablo = doc.querySelector('#borsa-tablo');
+                    document.querySelector('#borsa-tablo').innerHTML = yeniTablo.innerHTML;
+                })
+                .catch(error => console.log("Hata aga:", error));
+        }
+        // Her 30 saniyede bir güncelle
+        setInterval(guncelleTablo, 30000);
+    </script>
 </body>
 </html>

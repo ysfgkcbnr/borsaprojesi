@@ -5,23 +5,15 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-class Hisse(models.Model):
-    sembol = models.CharField(max_length=10, unique=True)  # Hisse sembolü (ör. XU100.IS)
-    acilis_fiyati = models.FloatField()  # Açılış fiyatı
-    kapanis_fiyati = models.FloatField()  # Kapanış fiyatı
-    yuksek_fiyat = models.FloatField()   # Günün en yüksek fiyatı
-    dusuk_fiyat = models.FloatField()    # Günün en düşük fiyatı
-    hacim = models.BigIntegerField()     # İşlem hacmi
-    zaman = models.DateTimeField(auto_now=True)  # Veri güncelleme zamanı
+class Hisse2(models.Model):
+    isim = models.CharField(max_length=10, unique=True)
+    fiyat = models.FloatField()
+    fiyat_degisim_yuzdesi = models.FloatField(default=0.0)
+    hacim = models.BigIntegerField()
+    zaman = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.sembol
-
-    class Meta:
-        verbose_name = "Hisse"
-        verbose_name_plural = "Hisseler"
-
-
+        return self.isim
 
 # Yöneticilerin paylaştığı analizler için model
 class Analysis(models.Model):
