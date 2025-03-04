@@ -54,20 +54,54 @@ def update_stock_data(request):
             }
         )
 
-    # Verileri JSON formatında döndür
+    # Veriyi JSON formatında döndür
     latest_data = StockData.objects.filter(symbol="THYAO").order_by('-timestamp').first()
 
-    response_data = {
-        'symbol': latest_data.symbol,
-        'close_price': latest_data.close_price,
-        'price_change': ((latest_data.close_price - latest_data.open_price) / latest_data.open_price) * 100,
-        'volume': latest_data.volume,
-    }
+    # İlk veri ile birlikte de gösterilecek response
+    if latest_data:
+        response_data = {
+            'symbol': latest_data.symbol,
+            'close_price': latest_data.close_price,
+            'price_change': ((latest_data.close_price - latest_data.open_price) / latest_data.open_price) * 100,
+            'volume': latest_data.volume,
+        }
+    else:
+        response_data = {
+            'symbol': 'THYAO',
+            'close_price': 'Veri Yükleniyor...',
+            'price_change': 'Veri Yükleniyor...',
+            'volume': 'Veri Yükleniyor...',
+        }
 
     return JsonResponse(response_data)
 
 
+# Anasayfa için view
+def index(request):
+    # İlk veriyi çekip anasayfaya göndermek için
+    stock_data = StockData.objects.filter(symbol="THYAO").order_by('-timestamp').first()
 
+    # Veriler yoksa, başlangıç verisi olarak "Veri Yükleniyor..." mesajını gönder
+    if stock_data:
+        context = {
+            'stock_data': {
+                'symbol': stock_data.symbol,
+                'close_price': stock_data.close_price,
+                'price_change': ((stock_data.close_price - stock_data.open_price) / stock_data.open_price) * 100,
+                'volume': stock_data.volume,
+            }
+        }
+    else:
+        context = {
+            'stock_data': {
+                'symbol': 'THYAO',
+                'close_price': 'Veri Yükleniyor...',
+                'price_change': 'Veri Yükleniyor...',
+                'volume': 'Veri Yükleniyor...',
+            }
+        }
+
+    return render(request, 'index.html', context)
 
 
 @login_required

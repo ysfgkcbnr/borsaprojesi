@@ -37,10 +37,10 @@
                 </thead>
                 <tbody id="stock-data">
                     <tr class="text-center">
-                        <td class="border p-2" id="ticker">THYAO</td>
-                        <td class="border p-2" id="close-price">Veri Yükleniyor...</td>
-                        <td class="border p-2" id="price-change">Veri Yükleniyor...</td>
-                        <td class="border p-2" id="volume">Veri Yükleniyor...</td>
+                        <td class="border p-2" id="ticker">{{ stock_data.symbol }}</td>
+                        <td class="border p-2" id="close-price">{{ stock_data.close_price }}</td>
+                        <td class="border p-2" id="price-change">{{ stock_data.price_change }}%</td>
+                        <td class="border p-2" id="volume">{{ stock_data.volume }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -56,7 +56,7 @@
         // Hisse verilerini her dakika güncelle
         function fetchStockData() {
             $.ajax({
-                url: "/update-stock-data/",
+                url: "/update-stock-data/",  // Update verilerini çekecek URL
                 method: "GET",
                 success: function(response) {
                     // Yeni verileri tabloya yerleştir
