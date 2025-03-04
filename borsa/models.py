@@ -4,25 +4,15 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-class StockData(models.Model):
-    symbol = models.CharField(max_length=10)
-    open_price = models.FloatField()
-    close_price = models.FloatField()
-    high_price = models.FloatField()
-    low_price = models.FloatField()
-    volume = models.IntegerField()
-    timestamp = models.DateTimeField()
+
+class Hisse(models.Model):
+    sembol = models.CharField(max_length=10)
+    ad = models.CharField(max_length=100)
+    fiyat = models.FloatField()
+    tarih = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.symbol
-
-
-    @property
-    def price_change(self):
-        try:
-            return (self.close_price - self.open_price) / self.open_price * 100
-        except ZeroDivisionError:
-            return 0  # Hata durumu için, sıfır bölme hatası önlenir
+        return self.ad
 
 
 

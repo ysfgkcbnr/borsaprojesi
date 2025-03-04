@@ -28,33 +28,26 @@ from django.contrib.auth.forms import PasswordChangeForm
 # views.py
 from django.shortcuts import render
 import yfinance as yf
-from .models import StockData
-from datetime import datetime
 
-def index(request):
-    # Veriyi Yahoo Finance'den çekelim
-    ticker = "THYAO.IS"
-    stock = yf.Ticker(ticker)
-    data = stock.history(period="1d")  # Veriyi 1 günlük olarak çekiyoruz
+def borsa_anasayfa(request):
+    # BIST 100 verisini çek
+    bist = yf.Ticker("XU100.IS")
+    tarih_veri = bist.history(period="1d")  # Günlük veri
 
-    # Veriyi veritabanına kaydedelim
-    StockData.objects.update_or_create(
-        symbol=ticker,
-        defaults={
-            'open_price': data['Open'][0],
-            'close_price': data['Close'][0],
-            'high_price': data['High'][0],
-            'low_price': data['Low'][0],
-            'volume': data['Volume'][0],
-            'timestamp': data.index[0]
+    # Tablo için veriyi hazırla
+    data = [
+        {
+            'symbol': 'XU100.IS',
+            'open_price': round(tarih_veri['Open'].iloc[-1], 2),  # Açılış fiyatı
+            'close_price': round(tarih_veri['Close'].iloc[-1], 2),  # Kapanış fiyatı
+            'high_price': round(tarih_veri['High'].iloc[-1], 2),   # Yüksek fiyat
+            'low_price': round(tarih_veri['Low'].iloc[-1], 2),    # Düşük fiyat
+            'volume': int(tarih_veri['Volume'].iloc[-1]),         # Hacim
+            'timestamp': tarih_veri.index[-1].strftime('%Y-%m-%d %H:%M:%S'),  # Zaman
         }
-    )
+    ]
 
-    # Veriyi anasayfada göstereceğiz
-    stock_data = StockData.objects.all()
-
-    return render(request, 'index.html', {'data': stock_data})
-
+    return render(request, 'index.html', {'data': data})
 
 
 @login_required
@@ -73,7 +66,7 @@ def update_profile(request):
         profile_form = ProfileUpdateForm(instance=request.user.profile)
         password_form = PasswordChangeForm(user=request.user)
 
-    return render(request, 'update_profile.html', {
+    return render(request, 'registration/update_profile.html', {
         'profile_form': profile_form,
         'password_form': password_form
     })

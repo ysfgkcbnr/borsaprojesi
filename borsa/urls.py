@@ -31,6 +31,5 @@ urlpatterns = [
     path('chat_room/', chat_room, name='chat_room'),
     path('profile/', views.profile_view, name='profile'),
     path('profile/update/', views.update_profile, name='update_profile'),
-    path('update-stock-data/', views.update_stock_data, name='update_stock_data'),
 
  ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

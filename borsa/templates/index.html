@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anasayfa | Borsa Platformu</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
 <body class="bg-gray-100">
     <nav class="bg-blue-900 text-white p-4 flex justify-between items-center sticky top-0 z-50">
         <div class="text-xl font-bold">Borsa Platformu</div>
@@ -25,7 +23,7 @@
         <!-- Borsa Verileri -->
         <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
             <h2 class="text-xl font-semibold mb-4">Canlı Borsa Verileri</h2>
-            <table class="w-full border-collapse border border-gray-300">
+            <table class="w-full border-collapse border border-gray-300 text-sm">
                 <thead>
                     <tr class="bg-gray-200">
                         <th class="border p-2">Hisse</th>
@@ -39,21 +37,23 @@
                 </thead>
                 <tbody>
                     {% for stock in data %}
-                        <tr class="text-center">
+                        <tr class="text-center hover:bg-gray-50">
                             <td class="border p-2">{{ stock.symbol }}</td>
-                            <td class="border p-2">{{ stock.open_price }}</td>
-                            <td class="border p-2">{{ stock.close_price }}</td>
-                            <td class="border p-2">{{ stock.high_price }}</td>
-                            <td class="border p-2">{{ stock.low_price }}</td>
+                            <td class="border p-2">{{ stock.open_price }} TL</td>
+                            <td class="border p-2">{{ stock.close_price }} TL</td>
+                            <td class="border p-2">{{ stock.high_price }} TL</td>
+                            <td class="border p-2">{{ stock.low_price }} TL</td>
                             <td class="border p-2">{{ stock.volume }}</td>
                             <td class="border p-2">{{ stock.timestamp }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="border p-2 text-center text-gray-500">Henüz veri yok.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-
 </body>
-
 </html>
