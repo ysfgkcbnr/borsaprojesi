@@ -10,17 +10,17 @@
 <body class="bg-gray-100">
     <!-- Navbar -->
     <nav class="bg-blue-900 text-white p-4 flex justify-between items-center sticky top-0 z-50">
-    <div class="text-xl font-bold">Borsa Platformu</div>
-    <button id="menu-toggle" class="md:hidden block text-white focus:outline-none">
+        <div class="text-xl font-bold">Borsa Platformu</div>
+        <button id="menu-toggle" class="md:hidden block text-white focus:outline-none">
             ☰
         </button>
-         <ul id="menu" class="hidden md:flex space-x-6">
+        <ul id="menu" class="hidden md:flex space-x-6">
             <li><a href="#" class="hover:text-gray-300">Anasayfa</a></li>
             <li><a href="analysis" class="hover:text-gray-300">Teknik Analiz</a></li>
             <li><a href="#" class="hover:text-gray-300">Haberler</a></li>
             <li><a href="premium" class="hover:text-gray-300">Premium</a></li>
             <li><a href="profile" class="hover:text-gray-300">Profil</a></li>
-             <li><a href="login" class="hover:text-gray-300">Giriş/Kayıt Ol</a></li>
+            <li><a href="login" class="hover:text-gray-300">Giriş/Kayıt Ol</a></li>
         </ul>
     </nav>
 
@@ -49,16 +49,17 @@
                     </tr>
                 </thead>
                 <tbody id="borsa-table">
-                    <tr class="text-center">
-                        <td class="border p-2">AAPL</td>
-                        <td class="border p-2">$150.25</td>
-                        <td class="border p-2 text-green-600">+1.2%</td>
-                    </tr>
-                    <tr class="text-center">
-                        <td class="border p-2">TSLA</td>
-                        <td class="border p-2">$650.40</td>
-                        <td class="border p-2 text-red-600">-0.8%</td>
-                    </tr>
+                    {% for ticker, df in data.items() %}
+                        {% for row in df.itertuples() %}
+                            <tr class="text-center">
+                                <td class="border p-2">{{ ticker }}</td>
+                                <td class="border p-2">${{ row.Close }}</td>
+                                <td class="border p-2 {% if row._2 > 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                    {% if row._2 > 0 %}+{{ row._2 | round(2) }}%{% else %}{{ row._2 | round(2) }}%{% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -76,7 +77,7 @@
             document.getElementById('mobile-menu').classList.toggle('hidden');
         });
 
-        // Örnek Grafik
+        // Grafik verilerini dinamik hale getirme
         var ctx = document.getElementById('borsaChart').getContext('2d');
         var myChart = new Chart(ctx, {
             type: 'line',
@@ -84,7 +85,7 @@
                 labels: ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma'],
                 datasets: [{
                     label: 'AAPL Hissesi',
-                    data: [150, 152, 149, 153, 155],
+                    data: [150, 152, 149, 153, 155],  // Burada dilediğiniz veriyle güncelleme yapın.
                     borderColor: 'blue',
                     borderWidth: 2,
                     fill: false
