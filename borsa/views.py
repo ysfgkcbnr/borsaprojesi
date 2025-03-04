@@ -41,38 +41,45 @@ def update_stock_data(request):
     hist = stock.history(period="1d", interval="1m")
 
     # Verileri kaydet
-    for date, data in hist.iterrows():
-        StockData.objects.update_or_create(
-            symbol="THYAO",
-            timestamp=datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S"),
-            defaults={
-                'open_price': data['Open'],
-                'close_price': data['Close'],
-                'high_price': data['High'],
-                'low_price': data['Low'],
-                'volume': data['Volume'],
+    try:
+        for date, data in hist.iterrows():
+            stock_data, created = StockData.objects.update_or_create(
+                symbol="THYAO",
+                timestamp=datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S"),
+                defaults={
+                    'open_price': data['Open'],
+                    'close_price': data['Close'],
+                    'high_price': data['High'],
+                    'low_price': data['Low'],
+                    'volume': data['Volume'],
+                }
+            )
+            # Loglama (başarı durumu)
+            print(
+                f"Veri {'yeni oluşturuldu' if created else 'güncellendi'}: {stock_data.timestamp} - {stock_data.close_price}")
+
+        # En son veriyi JSON formatında döndür
+        latest_data = StockData.objects.filter(symbol="THYAO").order_by('-timestamp').first()
+
+        if latest_data:
+            response_data = {
+                'symbol': latest_data.symbol,
+                'close_price': latest_data.close_price,
+                'price_change': ((latest_data.close_price - latest_data.open_price) / latest_data.open_price) * 100,
+                'volume': latest_data.volume,
             }
-        )
+        else:
+            response_data = {
+                'symbol': 'THYAO',
+                'close_price': 'Veri Yükleniyor...',
+                'price_change': 'Veri Yükleniyor...',
+                'volume': 'Veri Yükleniyor...',
+            }
 
-    # En son veriyi JSON formatında döndür
-    latest_data = StockData.objects.filter(symbol="THYAO").order_by('-timestamp').first()
-
-    if latest_data:
-        response_data = {
-            'symbol': latest_data.symbol,
-            'close_price': latest_data.close_price,
-            'price_change': ((latest_data.close_price - latest_data.open_price) / latest_data.open_price) * 100,
-            'volume': latest_data.volume,
-        }
-    else:
-        response_data = {
-            'symbol': 'THYAO',
-            'close_price': 'Veri Yükleniyor...',
-            'price_change': 'Veri Yükleniyor...',
-            'volume': 'Veri Yükleniyor...',
-        }
-
-    return JsonResponse(response_data)
+        return JsonResponse(response_data)
+    except Exception as e:
+        # Hata durumunda
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 # Anasayfa için view

@@ -16,6 +16,7 @@ class StockData(models.Model):
     def __str__(self):
         return self.symbol
 
+
     @property
     def price_change(self):
         try:
