@@ -29,7 +29,7 @@ import yfinance as yf
 from django.shortcuts import render
 
 
-def home(request):
+def index(request):
     # Hisse senedi sembollerini belirleyin
     tickers = ['THYAO.IS', 'GARAN.IS', 'SAHOL.IS']
 
