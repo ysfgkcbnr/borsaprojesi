@@ -38,24 +38,33 @@ def index(request):
 
     for ticker in tickers:
         # Yfinance ile hisse verisini çekiyoruz
-        df = yf.download(ticker, period='1d', interval='1m')
-        print(df.head())  # DataFrame'in ilk 5 satırını yazdır
+        try:
+            df = yf.download(ticker, period='1d', interval='1m')
 
-        # Fiyat değişim oranını ekliyoruz
-        df['Price Change (%)'] = df['Close'].pct_change() * 100
+            if df.empty:
+                print(f"{ticker} için veri bulunamadı!")
+                continue
 
-        # NaN değerleri temizliyoruz
-        df = df.dropna(subset=['Price Change (%)'])
+            print(df.head())  # DataFrame'in ilk 5 satırını yazdır
 
-        # Son satırdaki veriyi alıyoruz (en son kapanış fiyatı ve diğer veriler)
-        latest_data = df.iloc[-1]
+            # Fiyat değişim oranını ekliyoruz
+            df['Price Change (%)'] = df['Close'].pct_change() * 100
 
-        # Veriyi dictionary'ye ekliyoruz
-        data[ticker] = {
-            'close': latest_data['Close'],
-            'price_change': latest_data['Price Change (%)'],
-            'volume': latest_data['Volume'],
-        }
+            # NaN değerleri temizliyoruz
+            df = df.dropna(subset=['Price Change (%)'])
+
+            # Son satırdaki veriyi alıyoruz (en son kapanış fiyatı ve diğer veriler)
+            latest_data = df.iloc[-1]
+
+            # Veriyi dictionary'ye ekliyoruz
+            data[ticker] = {
+                'close': latest_data['Close'],
+                'price_change': latest_data['Price Change (%)'],
+                'volume': latest_data['Volume'],
+            }
+        except Exception as e:
+            print(f"{ticker} veri çekme hatası: {e}")
+            continue
 
     # Verileri render ederken 'data' isimli dictionary'yi şablona gönderiyoruz
     return render(request, 'index.html', {'data': data})
