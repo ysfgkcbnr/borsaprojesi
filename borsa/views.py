@@ -69,11 +69,22 @@ def remove_from_tracking(request, hisse_id):
 
 def borsa_anasayfa(request):
     print("View çalışıyor aga!")
+    # XU30 ve XU100 hisse listeleri (örnek, sen dolduracaksın)
+    XU30_HISSELERI = [
+        'GARAN',  # Örnek, senin 30 hisseni buraya yaz
+        # ... 29 tane daha ekle
+    ]
+    XU100_HISSELERI = [
+        'XU100', 'THYAO', 'GARAN',  # Örnek, senin 100 hisseni buraya yaz
+        # ... 97 tane daha ekle
+    ]
+
     try:
         hisse_sembolleri = {
             "XU100.IS": "XU100",
             "GARAN.IS": "GARAN",
             "THYAO.IS": "THYAO",
+            # Buraya diğer hisse sembollerini ekleyebilirsin
         }
 
         for sembol, isim in hisse_sembolleri.items():
@@ -86,9 +97,9 @@ def borsa_anasayfa(request):
                 bugunku_kapanis = tarih_veri['Close'].iloc[-1]
                 degisim_yuzdesi = ((bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
 
-                # Kategorileri belirle
-                is_xu30 = isim in ['GARAN']  # Örnek, senin 30’luk liste
-                is_xu100 = isim in ['XU100', 'THYAO', 'GARAN']  # Örnek, senin 100’lük liste
+                # Kategorileri liste kontrolüyle belirle
+                is_xu30 = isim in XU30_HISSELERI
+                is_xu100 = isim in XU100_HISSELERI
                 hisse, created = Hisse2.objects.get_or_create(
                     isim=isim,
                     defaults={
