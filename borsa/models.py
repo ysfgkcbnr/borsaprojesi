@@ -32,7 +32,9 @@ class Hisse2(models.Model):
     fiyat_degisim_yuzdesi = models.FloatField(default=0.0)
     hacim = models.BigIntegerField()
     zaman = models.DateTimeField(auto_now=True)
-    kategori = models.CharField(max_length=10, choices=[('XU30', 'BIST 30'), ('XU100', 'BIST 100'), ('BISTTUM', 'Tüm Hisseler')], default='BISTTUM')
+    is_bisttum = models.BooleanField(default=True)  # Tüm hisseler BISTTUM’da
+    is_xu100 = models.BooleanField(default=False)  # BIST 100 için
+    is_xu30 = models.BooleanField(default=False)   # BIST 30 için
 
     def __str__(self):
         return self.isim

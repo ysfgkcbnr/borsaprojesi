@@ -67,8 +67,6 @@ def remove_from_tracking(request, hisse_id):
     return redirect('tracking_list')
 
 
-
-
 def borsa_anasayfa(request):
     print("View çalışıyor aga!")
     try:
@@ -88,33 +86,43 @@ def borsa_anasayfa(request):
                 bugunku_kapanis = tarih_veri['Close'].iloc[-1]
                 degisim_yuzdesi = ((bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
 
-                kategori = 'XU30' if isim in ['GARAN'] else 'XU100' if isim in ['XU100', 'THYAO'] else 'BISTTUM'
+                # Kategorileri belirle
+                is_xu30 = isim in ['GARAN']  # Örnek, senin 30’luk liste
+                is_xu100 = isim in ['XU100', 'THYAO', 'GARAN']  # Örnek, senin 100’lük liste
                 hisse, created = Hisse2.objects.get_or_create(
                     isim=isim,
                     defaults={
                         'fiyat': round(bugunku_kapanis, 2),
                         'fiyat_degisim_yuzdesi': round(degisim_yuzdesi, 2),
                         'hacim': int(tarih_veri['Volume'].iloc[-1]),
-                        'kategori': kategori,
+                        'is_bisttum': True,  # Her zaman True
+                        'is_xu100': is_xu100,
+                        'is_xu30': is_xu30,
                     }
                 )
                 if not created:
                     hisse.fiyat = round(bugunku_kapanis, 2)
                     hisse.fiyat_degisim_yuzdesi = round(degisim_yuzdesi, 2)
                     hisse.hacim = int(tarih_veri['Volume'].iloc[-1])
-                    hisse.kategori = kategori
+                    hisse.is_bisttum = True
+                    hisse.is_xu100 = is_xu100
+                    hisse.is_xu30 = is_xu30
                     hisse.save()
 
         # Filtreleme, arama ve sıralama
-        data = Hisse2.objects.all()
+        data = Hisse2.objects.all()  # Her zaman tüm hisseler (is_bisttum=True)
         arama = request.GET.get('arama', '')
         siralama = request.GET.get('siralama', 'isim')
         kategori = request.GET.get('kategori', 'BISTTUM')
 
         if arama:
             data = data.filter(isim__icontains=arama)
-        if kategori:
-            data = data.filter(kategori=kategori)
+        if kategori == 'XU30':
+            data = data.filter(is_xu30=True)
+        elif kategori == 'XU100':
+            data = data.filter(is_xu100=True)
+        # BISTTUM seçilirse filtreleme yapma, tüm hisseleri göster
+
         if siralama == 'fiyat':
             data = data.order_by('fiyat')
         elif siralama == 'degisim':
@@ -124,7 +132,7 @@ def borsa_anasayfa(request):
         else:
             data = data.order_by('isim')
 
-        # Sıralama seçenekleri için selected değerlerini hazırla
+        # Sıralama seçenekleri
         siralama_secenekleri = {
             'isim': siralama == 'isim',
             'fiyat': siralama == 'fiyat',
@@ -132,7 +140,7 @@ def borsa_anasayfa(request):
             'hacim': siralama == 'hacim',
         }
 
-        # Kategori seçenekleri için selected değerlerini hazırla
+        # Kategori seçenekleri
         kategori_secenekleri = {
             'BISTTUM': kategori == 'BISTTUM',
             'XU30': kategori == 'XU30',
