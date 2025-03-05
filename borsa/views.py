@@ -86,30 +86,35 @@ def borsa_anasayfa(request):
             if not tarih_veri.empty and len(tarih_veri) >= 2:
                 onceki_kapanis = tarih_veri['Close'].iloc[-2]
                 bugunku_kapanis = tarih_veri['Close'].iloc[-1]
-                degisim_yuzdesi = ((
-                                               bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
+                degisim_yuzdesi = ((bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
 
+                kategori = 'XU30' if isim in ['GARAN'] else 'XU100' if isim in ['XU100', 'THYAO'] else 'BISTTUM'
                 hisse, created = Hisse2.objects.get_or_create(
                     isim=isim,
                     defaults={
                         'fiyat': round(bugunku_kapanis, 2),
                         'fiyat_degisim_yuzdesi': round(degisim_yuzdesi, 2),
                         'hacim': int(tarih_veri['Volume'].iloc[-1]),
+                        'kategori': kategori,
                     }
                 )
                 if not created:
                     hisse.fiyat = round(bugunku_kapanis, 2)
                     hisse.fiyat_degisim_yuzdesi = round(degisim_yuzdesi, 2)
                     hisse.hacim = int(tarih_veri['Volume'].iloc[-1])
+                    hisse.kategori = kategori
                     hisse.save()
 
         # Filtreleme, arama ve sıralama
         data = Hisse2.objects.all()
         arama = request.GET.get('arama', '')
         siralama = request.GET.get('siralama', 'isim')
+        kategori = request.GET.get('kategori', 'BISTTUM')
 
         if arama:
             data = data.filter(isim__icontains=arama)
+        if kategori:
+            data = data.filter(kategori=kategori)
         if siralama == 'fiyat':
             data = data.order_by('fiyat')
         elif siralama == 'degisim':
@@ -127,25 +132,39 @@ def borsa_anasayfa(request):
             'hacim': siralama == 'hacim',
         }
 
+        # Kategori seçenekleri için selected değerlerini hazırla
+        kategori_secenekleri = {
+            'BISTTUM': kategori == 'BISTTUM',
+            'XU30': kategori == 'XU30',
+            'XU100': kategori == 'XU100',
+        }
+
         print("Veritabanındaki veriler:", list(data))
     except Exception as e:
         print("Hata var aga:", str(e))
         data = []
         siralama = 'isim'
+        kategori = 'BISTTUM'
         siralama_secenekleri = {
             'isim': True,
             'fiyat': False,
             'degisim': False,
             'hacim': False,
         }
+        kategori_secenekleri = {
+            'BISTTUM': True,
+            'XU30': False,
+            'XU100': False,
+        }
 
     return render(request, 'index.html', {
         'data': data,
         'arama': arama,
         'siralama': siralama,
-        'siralama_secenekleri': siralama_secenekleri
+        'kategori': kategori,
+        'siralama_secenekleri': siralama_secenekleri,
+        'kategori_secenekleri': kategori_secenekleri
     })
-
 @login_required
 def update_profile(request):
     if request.method == 'POST':

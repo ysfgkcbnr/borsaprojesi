@@ -39,7 +39,7 @@
         <div class="bg-white shadow-lg rounded-lg p-4 md:p-6 mb-6">
             <h2 class="text-xl font-semibold mb-4 text-center">Canlı Borsa Verileri</h2>
 
-            <!-- Arama ve Sıralama Formu -->
+            <!-- Arama, Sıralama ve Kategori Formu -->
             <form method="GET" class="mb-4 flex flex-col md:flex-row gap-4">
                 <input type="text" name="arama" value="{{ arama }}" placeholder="Hisse ara..." class="w-full md:w-1/3 p-2 border rounded">
                 <select name="siralama" onchange="this.form.submit()" class="w-full md:w-1/3 p-2 border rounded">
@@ -48,7 +48,12 @@
                     <option value="degisim" {% if siralama_secenekleri.degisim %}selected{% endif %}>Değişime Göre</option>
                     <option value="hacim" {% if siralama_secenekleri.hacim %}selected{% endif %}>Hacme Göre</option>
                 </select>
-                <button type="submit" class="bg-blue-900 text-white p-2 rounded hover:bg-blue-800">Ara/Sırala</button>
+                <select name="kategori" onchange="this.form.submit()" class="w-full md:w-1/3 p-2 border rounded">
+                    <option value="BISTTUM" {% if kategori_secenekleri.BISTTUM %}selected{% endif %}>Tüm Hisseler</option>
+                    <option value="XU30" {% if kategori_secenekleri.XU30 %}selected{% endif %}>BIST 30</option>
+                    <option value="XU100" {% if kategori_secenekleri.XU100 %}selected{% endif %}>BIST 100</option>
+                </select>
+                <button type="submit" class="bg-blue-900 text-white p-2 rounded hover:bg-blue-800">Filtrele</button>
             </form>
 
             <!-- Masaüstü Tablo -->
