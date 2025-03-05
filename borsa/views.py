@@ -29,17 +29,16 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render
 import yfinance as yf
 from .models import Hisse2
+from django.db.models import Q
 
 
 def borsa_anasayfa(request):
     print("View çalışıyor aga!")
     try:
-        # Hisse senedi sembolleri listesi
         hisse_sembolleri = {
-            "XU100.IS": "XU100",  # Sembol: Görünecek isim
+            "XU100.IS": "XU100",
             "GARAN.IS": "GARAN",
             "THYAO.IS": "THYAO",
-            # İstediğin kadar hisse ekleyebilirsin: "SEMBOL": "AD"
         }
 
         for sembol, isim in hisse_sembolleri.items():
@@ -54,7 +53,7 @@ def borsa_anasayfa(request):
                                                bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
 
                 hisse, created = Hisse2.objects.get_or_create(
-                    isim=isim,  # Veritabanında görünecek isim (XU100, GARAN, vb.)
+                    isim=isim,
                     defaults={
                         'fiyat': round(bugunku_kapanis, 2),
                         'fiyat_degisim_yuzdesi': round(degisim_yuzdesi, 2),
@@ -66,14 +65,29 @@ def borsa_anasayfa(request):
                     hisse.fiyat_degisim_yuzdesi = round(degisim_yuzdesi, 2)
                     hisse.hacim = int(tarih_veri['Volume'].iloc[-1])
                     hisse.save()
-                print(f"{isim} güncellendi!")
 
+        # Filtreleme, arama ve sıralama
         data = Hisse2.objects.all()
+        arama = request.GET.get('arama', '')
+        siralama = request.GET.get('siralama', 'isim')
+
+        if arama:
+            data = data.filter(isim__icontains=arama)
+
+        if siralama == 'fiyat':
+            data = data.order_by('fiyat')
+        elif siralama == 'degisim':
+            data = data.order_by('fiyat_degisim_yuzdesi')
+        elif siralama == 'hacim':
+            data = data.order_by('hacim')
+        else:
+            data = data.order_by('isim')
+
         print("Veritabanındaki veriler:", list(data))
     except Exception as e:
         print("Hata var aga:", str(e))
         data = []
-    return render(request, 'index.html', {'data': data})
+    return render(request, 'index.html', {'data': data, 'arama': arama, 'siralama': siralama})
 
 @login_required
 def update_profile(request):
