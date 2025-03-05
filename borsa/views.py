@@ -41,7 +41,7 @@ def set_alarm(request, hisse_id):
         is_above = request.POST.get('is_above') == 'above'
         StockAlarm.objects.create(user=request.user, hisse=hisse, threshold=threshold, is_above=is_above)
         return redirect('tracking_list')
-    return render(request, 'set_alarm.html', {'hisse': hisse})
+    return render(request, 'registration/set_alarm.html', {'hisse': hisse})
 
 @login_required
 def remove_alarm(request, alarm_id):
@@ -52,7 +52,7 @@ def remove_alarm(request, alarm_id):
 @login_required
 def tracking_list(request):
     tracked_stocks = UserStockTracking.objects.filter(user=request.user)
-    return render(request, 'tracking_list.html', {'tracked_stocks': tracked_stocks})
+    return render(request, 'registration/tracking_list.html', {'tracked_stocks': tracked_stocks})
 
 @login_required
 def add_to_tracking(request, hisse_id):
@@ -67,58 +67,84 @@ def remove_from_tracking(request, hisse_id):
     return redirect('tracking_list')
 
 
-# borsa/views.py
+
+
 def borsa_anasayfa(request):
-    hisse_sembolleri = {
-        "XU100.IS": "XU100",
-        "GARAN.IS": "GARAN",
-        "THYAO.IS": "THYAO",
-    }
+    print("View çalışıyor aga!")
+    try:
+        hisse_sembolleri = {
+            "XU100.IS": "XU100",
+            "GARAN.IS": "GARAN",
+            "THYAO.IS": "THYAO",
+        }
 
-    for sembol, isim in hisse_sembolleri.items():
-        ticker = yf.Ticker(sembol)
-        tarih_veri = ticker.history(period="2d")
-        if not tarih_veri.empty and len(tarih_veri) >= 2:
-            onceki_kapanis = tarih_veri['Close'].iloc[-2]
-            bugunku_kapanis = tarih_veri['Close'].iloc[-1]
-            degisim_yuzdesi = ((bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
+        for sembol, isim in hisse_sembolleri.items():
+            ticker = yf.Ticker(sembol)
+            tarih_veri = ticker.history(period="2d")
+            print(f"{isim} için çekilen veri:", tarih_veri)
 
-            kategori = 'XU30' if isim in ['GARAN'] else 'XU100' if isim in ['XU100', 'THYAO'] else 'BISTTUM'  # Örnek, sen belirteceksin
-            hisse, created = Hisse2.objects.get_or_create(
-                isim=isim,
-                defaults={
-                    'fiyat': round(bugunku_kapanis, 2),
-                    'fiyat_degisim_yuzdesi': round(degisim_yuzdesi, 2),
-                    'hacim': int(tarih_veri['Volume'].iloc[-1]),
-                    'kategori': kategori,
-                }
-            )
-            if not created:
-                hisse.fiyat = round(bugunku_kapanis, 2)
-                hisse.fiyat_degisim_yuzdesi = round(degisim_yuzdesi, 2)
-                hisse.hacim = int(tarih_veri['Volume'].iloc[-1])
-                hisse.kategori = kategori
-                hisse.save()
+            if not tarih_veri.empty and len(tarih_veri) >= 2:
+                onceki_kapanis = tarih_veri['Close'].iloc[-2]
+                bugunku_kapanis = tarih_veri['Close'].iloc[-1]
+                degisim_yuzdesi = ((
+                                               bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
 
-    data = Hisse2.objects.all()
-    arama = request.GET.get('arama', '')
-    siralama = request.GET.get('siralama', 'isim')
-    kategori = request.GET.get('kategori', 'BISTTUM')  # Varsayılan BISTTUM
+                hisse, created = Hisse2.objects.get_or_create(
+                    isim=isim,
+                    defaults={
+                        'fiyat': round(bugunku_kapanis, 2),
+                        'fiyat_degisim_yuzdesi': round(degisim_yuzdesi, 2),
+                        'hacim': int(tarih_veri['Volume'].iloc[-1]),
+                    }
+                )
+                if not created:
+                    hisse.fiyat = round(bugunku_kapanis, 2)
+                    hisse.fiyat_degisim_yuzdesi = round(degisim_yuzdesi, 2)
+                    hisse.hacim = int(tarih_veri['Volume'].iloc[-1])
+                    hisse.save()
 
-    if arama:
-        data = data.filter(isim__icontains=arama)
-    if kategori:
-        data = data.filter(kategori=kategori)
-    if siralama == 'fiyat':
-        data = data.order_by('fiyat')
-    elif siralama == 'degisim':
-        data = data.order_by('fiyat_degisim_yuzdesi')
-    elif siralama == 'hacim':
-        data = data.order_by('hacim')
-    else:
-        data = data.order_by('isim')
+        # Filtreleme, arama ve sıralama
+        data = Hisse2.objects.all()
+        arama = request.GET.get('arama', '')
+        siralama = request.GET.get('siralama', 'isim')
 
-    return render(request, 'index.html', {'data': data, 'arama': arama, 'siralama': siralama, 'kategori': kategori})
+        if arama:
+            data = data.filter(isim__icontains=arama)
+        if siralama == 'fiyat':
+            data = data.order_by('fiyat')
+        elif siralama == 'degisim':
+            data = data.order_by('fiyat_degisim_yuzdesi')
+        elif siralama == 'hacim':
+            data = data.order_by('hacim')
+        else:
+            data = data.order_by('isim')
+
+        # Sıralama seçenekleri için selected değerlerini hazırla
+        siralama_secenekleri = {
+            'isim': siralama == 'isim',
+            'fiyat': siralama == 'fiyat',
+            'degisim': siralama == 'degisim',
+            'hacim': siralama == 'hacim',
+        }
+
+        print("Veritabanındaki veriler:", list(data))
+    except Exception as e:
+        print("Hata var aga:", str(e))
+        data = []
+        siralama = 'isim'
+        siralama_secenekleri = {
+            'isim': True,
+            'fiyat': False,
+            'degisim': False,
+            'hacim': False,
+        }
+
+    return render(request, 'index.html', {
+        'data': data,
+        'arama': arama,
+        'siralama': siralama,
+        'siralama_secenekleri': siralama_secenekleri
+    })
 
 @login_required
 def update_profile(request):
