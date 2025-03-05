@@ -73,18 +73,18 @@
                     {% for stock in data %}
                         <tr class="text-center hover:bg-gray-50">
                             <td class="border p-2">{{ stock.isim }}</td>
-                            <td class="border p-2">{{ stock.fiyat }} TL</td>
+                            <td class="border p-2">{{ stock.fiyat|default:stock.fiyat }} TL</td>
                             <td class="border p-2 {% if stock.fiyat_degisim_yuzdesi > 0 %}text-green-500{% elif stock.fiyat_degisim_yuzdesi < 0 %}text-red-500{% endif %}">
-                                {{ stock.fiyat_degisim_yuzdesi }}%
+                                {{ stock.fiyat_degisim_yuzdesi|default:stock.fiyat_degisim_yuzdesi }}%
                             </td>
-                            <td class="border p-2">{{ stock.hacim }}</td>
-                            <td class="border p-2">{{ stock.yuksek }} TL</td>
-                            <td class="border p-2">{{ stock.dusuk }} TL</td>
+                            <td class="border p-2">{{ stock.hacim|default:stock.hacim }}</td>
+                            <td class="border p-2">{{ stock.yuksek|default:'N/A' }} TL</td>
+                            <td class="border p-2">{{ stock.dusuk|default:'N/A' }} TL</td>
                             <td class="border p-2">
                                 {% if request.user.is_authenticated and stock in request.user.userstocktracking_set.all %}
                                     <span class="text-gray-500">Takip Ediliyor</span>
-                                {% else %}
-                                    <a href="{% url 'add_to_tracking' stock.id %}" class="text-blue-600">Takip Et</a>
+                                {% elif request.user.is_authenticated %}
+                                    <a href="{% url 'add_to_tracking' stock.id|default:stock.isim %}" class="text-blue-600">Takip Et</a>
                                 {% endif %}
                             </td>
                         </tr>
@@ -102,19 +102,19 @@
                     <div class="bg-gray-50 p-3 rounded-lg shadow-sm">
                         <div class="flex justify-between">
                             <span class="font-semibold">{{ stock.isim }}</span>
-                            <span>{{ stock.fiyat }} TL</span>
+                            <span>{{ stock.fiyat|default:stock.fiyat }} TL</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="{% if stock.fiyat_degisim_yuzdesi > 0 %}text-green-500{% elif stock.fiyat_degisim_yuzdesi < 0 %}text-red-500{% endif %}">
-                                Değişim: {{ stock.fiyat_degisim_yuzdesi }}%
+                                Değişim: {{ stock.fiyat_degisim_yuzdesi|default:stock.fiyat_degisim_yuzdesi }}%
                             </span>
-                            <span>Hacim: {{ stock.hacim }}</span>
+                            <span>Hacim: {{ stock.hacim|default:stock.hacim }}</span>
                         </div>
                         <div class="text-center mt-2">
                             {% if request.user.is_authenticated and stock in request.user.userstocktracking_set.all %}
                                 <span class="text-gray-500">Takip Ediliyor</span>
-                            {% else %}
-                                <a href="{% url 'add_to_tracking' stock.id %}" class="text-blue-600">Takip Et</a>
+                            {% elif request.user.is_authenticated %}
+                                <a href="{% url 'add_to_tracking' stock.id|default:stock.isim %}" class="text-blue-600">Takip Et</a>
                             {% endif %}
                         </div>
                     </div>

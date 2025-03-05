@@ -71,12 +71,10 @@ def borsa_anasayfa(request):
     print("View çalışıyor aga!")
     # XU30 ve XU100 hisse listeleri (örnek, sen dolduracaksın)
     XU30_HISSELERI = [
-        'GARAN',  # Örnek, senin 30 hisseni buraya yaz
-        # ... 29 tane daha ekle
+        'GARAN', 'AKBNK', 'ISCTR',  # 30 taneyi sen doldur
     ]
     XU100_HISSELERI = [
-        'XU100', 'THYAO', 'GARAN',  # Örnek, senin 100 hisseni buraya yaz
-        # ... 97 tane daha ekle
+        'XU100', 'THYAO', 'GARAN', 'AKBNK', 'ISCTR',  # 100 taneyi sen doldur
     ]
 
     try:
@@ -84,7 +82,6 @@ def borsa_anasayfa(request):
             "XU100.IS": "XU100",
             "GARAN.IS": "GARAN",
             "THYAO.IS": "THYAO",
-            # Buraya diğer hisse sembollerini ekleyebilirsin
         }
 
         for sembol, isim in hisse_sembolleri.items():
@@ -97,7 +94,6 @@ def borsa_anasayfa(request):
                 bugunku_kapanis = tarih_veri['Close'].iloc[-1]
                 degisim_yuzdesi = ((bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
 
-                # Kategorileri liste kontrolüyle belirle
                 is_xu30 = isim in XU30_HISSELERI
                 is_xu100 = isim in XU100_HISSELERI
                 hisse, created = Hisse2.objects.get_or_create(
@@ -106,7 +102,7 @@ def borsa_anasayfa(request):
                         'fiyat': round(bugunku_kapanis, 2),
                         'fiyat_degisim_yuzdesi': round(degisim_yuzdesi, 2),
                         'hacim': int(tarih_veri['Volume'].iloc[-1]),
-                        'is_bisttum': True,  # Her zaman True
+                        'is_bisttum': True,
                         'is_xu100': is_xu100,
                         'is_xu30': is_xu30,
                     }
@@ -121,37 +117,59 @@ def borsa_anasayfa(request):
                     hisse.save()
 
         # Filtreleme, arama ve sıralama
-        data = Hisse2.objects.all()  # Her zaman tüm hisseler (is_bisttum=True)
-        arama = request.GET.get('arama', '')
+        data = Hisse2.objects.all()
+        arama = request.GET.get('arama', '').strip().upper()  # Büyük harf ve boşluk temizle
         siralama = request.GET.get('siralama', 'isim')
         kategori = request.GET.get('kategori', 'BISTTUM')
+        yahoo_hisse = None  # Yahoo’dan çekilen hisse için
 
         if arama:
             data = data.filter(isim__icontains=arama)
-        if kategori == 'XU30':
-            data = data.filter(is_xu30=True)
-        elif kategori == 'XU100':
-            data = data.filter(is_xu100=True)
-        # BISTTUM seçilirse filtreleme yapma, tüm hisseleri göster
+            if not data.exists():  # Veritabanında yoksa Yahoo’dan çek
+                try:
+                    ticker = yf.Ticker(arama)  # Direkt kullanıcı girdisini sembol olarak dene
+                    tarih_veri = ticker.history(period="2d")
+                    if not tarih_veri.empty and len(tarih_veri) >= 2:
+                        onceki_kapanis = tarih_veri['Close'].iloc[-2]
+                        bugunku_kapanis = tarih_veri['Close'].iloc[-1]
+                        degisim_yuzdesi = ((bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
+                        yahoo_hisse = {
+                            'isim': arama,
+                            'fiyat': round(bugunku_kapanis, 2),
+                            'fiyat_degisim_yuzdesi': round(degisim_yuzdesi, 2),
+                            'hacim': int(tarih_veri['Volume'].iloc[-1]),
+                            'is_bisttum': False,  # Yahoo’dan gelenler BISTTUM değil
+                            'is_xu100': False,
+                            'is_xu30': False,
+                        }
+                        data = [yahoo_hisse]  # Tek bir hisse olarak döndür
+                    else:
+                        print(f"Yahoo’da {arama} için veri yok.")
+                except Exception as e:
+                    print(f"Yahoo arama hatası: {str(e)}")
+        else:
+            if kategori == 'XU30':
+                data = data.filter(is_xu30=True)
+            elif kategori == 'XU100':
+                data = data.filter(is_xu100=True)
+            # BISTTUM seçilirse tüm hisseleri göster
 
         if siralama == 'fiyat':
-            data = data.order_by('fiyat')
+            data = sorted(data, key=lambda x: x.fiyat if isinstance(x, dict) else x['fiyat'])
         elif siralama == 'degisim':
-            data = data.order_by('fiyat_degisim_yuzdesi')
+            data = sorted(data, key=lambda x: x.fiyat_degisim_yuzdesi if isinstance(x, dict) else x['fiyat_degisim_yuzdesi'])
         elif siralama == 'hacim':
-            data = data.order_by('hacim')
+            data = sorted(data, key=lambda x: x.hacim if isinstance(x, dict) else x['hacim'])
         else:
-            data = data.order_by('isim')
+            data = sorted(data, key=lambda x: x.isim if isinstance(x, dict) else x['isim']) if arama else data.order_by('isim')
 
-        # Sıralama seçenekleri
+        # Sıralama ve kategori seçenekleri
         siralama_secenekleri = {
             'isim': siralama == 'isim',
             'fiyat': siralama == 'fiyat',
             'degisim': siralama == 'degisim',
             'hacim': siralama == 'hacim',
         }
-
-        # Kategori seçenekleri
         kategori_secenekleri = {
             'BISTTUM': kategori == 'BISTTUM',
             'XU30': kategori == 'XU30',
@@ -175,6 +193,7 @@ def borsa_anasayfa(request):
             'XU30': False,
             'XU100': False,
         }
+        yahoo_hisse = None
 
     return render(request, 'index.html', {
         'data': data,
@@ -182,7 +201,8 @@ def borsa_anasayfa(request):
         'siralama': siralama,
         'kategori': kategori,
         'siralama_secenekleri': siralama_secenekleri,
-        'kategori_secenekleri': kategori_secenekleri
+        'kategori_secenekleri': kategori_secenekleri,
+        'yahoo_hisse': yahoo_hisse  # Yahoo’dan gelen hisseyi template’e gönder
     })
 @login_required
 def update_profile(request):
