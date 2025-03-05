@@ -61,6 +61,7 @@
                         <th class="border p-2">Hacim</th>
                         <th class="border p-2">Yüksek</th>
                         <th class="border p-2">Düşük</th>
+                        <th class="border p-2">İşlem</th>
                     </tr>
                 </thead>
                 <tbody id="borsa-tablo">
@@ -74,14 +75,22 @@
                             <td class="border p-2">{{ stock.hacim|intcomma }}</td>
                             <td class="border p-2">{{ stock.yuksek }} TL</td>
                             <td class="border p-2">{{ stock.dusuk }} TL</td>
+                            <td class="border p-2">
+                                {% if request.user.is_authenticated and stock in request.user.userstocktracking_set.all %}
+                                    <span class="text-gray-500">Takip Ediliyor</span>
+                                {% else %}
+                                    <a href="{% url 'add_to_tracking' stock.id %}" class="text-blue-600">Takip Et</a>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="6" class="border p-2 text-center text-gray-500">Henüz veri yok.</td>
+                            <td colspan="7" class="border p-2 text-center text-gray-500">Henüz veri yok.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
+
             <!-- Mobil Liste -->
             <div class="md:hidden space-y-4">
                 {% for stock in data %}
@@ -95,6 +104,13 @@
                                 Değişim: {{ stock.fiyat_degisim_yuzdesi }}%
                             </span>
                             <span>Hacim: {{ stock.hacim|intcomma }}</span>
+                        </div>
+                        <div class="text-center mt-2">
+                            {% if request.user.is_authenticated and stock in request.user.userstocktracking_set.all %}
+                                <span class="text-gray-500">Takip Ediliyor</span>
+                            {% else %}
+                                <a href="{% url 'add_to_tracking' stock.id %}" class="text-blue-600">Takip Et</a>
+                            {% endif %}
                         </div>
                     </div>
                 {% empty %}

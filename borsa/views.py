@@ -1,3 +1,4 @@
+#views.py
 from django.http import HttpResponse
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import logout
@@ -25,69 +26,99 @@ from .forms import ProfileUpdateForm, PasswordUpdateForm
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-# views.py
 from django.shortcuts import render
 import yfinance as yf
 from .models import Hisse2
+from .models import UserStockTracking
+from .models import StockAlarm
 from django.db.models import Q
 
+@login_required
+def set_alarm(request, hisse_id):
+    hisse = get_object_or_404(Hisse2, id=hisse_id)
+    if request.method == 'POST':
+        threshold = float(request.POST.get('threshold'))
+        is_above = request.POST.get('is_above') == 'above'
+        StockAlarm.objects.create(user=request.user, hisse=hisse, threshold=threshold, is_above=is_above)
+        return redirect('tracking_list')
+    return render(request, 'set_alarm.html', {'hisse': hisse})
 
+@login_required
+def remove_alarm(request, alarm_id):
+    alarm = get_object_or_404(StockAlarm, id=alarm_id, user=request.user)
+    alarm.delete()
+    return redirect('tracking_list')
+
+@login_required
+def tracking_list(request):
+    tracked_stocks = UserStockTracking.objects.filter(user=request.user)
+    return render(request, 'tracking_list.html', {'tracked_stocks': tracked_stocks})
+
+@login_required
+def add_to_tracking(request, hisse_id):
+    hisse = get_object_or_404(Hisse2, id=hisse_id)
+    UserStockTracking.objects.get_or_create(user=request.user, hisse=hisse)
+    return redirect('tracking_list')
+
+@login_required
+def remove_from_tracking(request, hisse_id):
+    hisse = get_object_or_404(Hisse2, id=hisse_id)
+    UserStockTracking.objects.filter(user=request.user, hisse=hisse).delete()
+    return redirect('tracking_list')
+
+
+# borsa/views.py
 def borsa_anasayfa(request):
-    print("View çalışıyor aga!")
-    try:
-        hisse_sembolleri = {
-            "XU100.IS": "XU100",
-            "GARAN.IS": "GARAN",
-            "THYAO.IS": "THYAO",
-        }
+    hisse_sembolleri = {
+        "XU100.IS": "XU100",
+        "GARAN.IS": "GARAN",
+        "THYAO.IS": "THYAO",
+    }
 
-        for sembol, isim in hisse_sembolleri.items():
-            ticker = yf.Ticker(sembol)
-            tarih_veri = ticker.history(period="2d")
-            print(f"{isim} için çekilen veri:", tarih_veri)
+    for sembol, isim in hisse_sembolleri.items():
+        ticker = yf.Ticker(sembol)
+        tarih_veri = ticker.history(period="2d")
+        if not tarih_veri.empty and len(tarih_veri) >= 2:
+            onceki_kapanis = tarih_veri['Close'].iloc[-2]
+            bugunku_kapanis = tarih_veri['Close'].iloc[-1]
+            degisim_yuzdesi = ((bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
 
-            if not tarih_veri.empty and len(tarih_veri) >= 2:
-                onceki_kapanis = tarih_veri['Close'].iloc[-2]
-                bugunku_kapanis = tarih_veri['Close'].iloc[-1]
-                degisim_yuzdesi = ((
-                                               bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
+            kategori = 'XU30' if isim in ['GARAN'] else 'XU100' if isim in ['XU100', 'THYAO'] else 'BISTTUM'  # Örnek, sen belirteceksin
+            hisse, created = Hisse2.objects.get_or_create(
+                isim=isim,
+                defaults={
+                    'fiyat': round(bugunku_kapanis, 2),
+                    'fiyat_degisim_yuzdesi': round(degisim_yuzdesi, 2),
+                    'hacim': int(tarih_veri['Volume'].iloc[-1]),
+                    'kategori': kategori,
+                }
+            )
+            if not created:
+                hisse.fiyat = round(bugunku_kapanis, 2)
+                hisse.fiyat_degisim_yuzdesi = round(degisim_yuzdesi, 2)
+                hisse.hacim = int(tarih_veri['Volume'].iloc[-1])
+                hisse.kategori = kategori
+                hisse.save()
 
-                hisse, created = Hisse2.objects.get_or_create(
-                    isim=isim,
-                    defaults={
-                        'fiyat': round(bugunku_kapanis, 2),
-                        'fiyat_degisim_yuzdesi': round(degisim_yuzdesi, 2),
-                        'hacim': int(tarih_veri['Volume'].iloc[-1]),
-                    }
-                )
-                if not created:
-                    hisse.fiyat = round(bugunku_kapanis, 2)
-                    hisse.fiyat_degisim_yuzdesi = round(degisim_yuzdesi, 2)
-                    hisse.hacim = int(tarih_veri['Volume'].iloc[-1])
-                    hisse.save()
+    data = Hisse2.objects.all()
+    arama = request.GET.get('arama', '')
+    siralama = request.GET.get('siralama', 'isim')
+    kategori = request.GET.get('kategori', 'BISTTUM')  # Varsayılan BISTTUM
 
-        # Filtreleme, arama ve sıralama
-        data = Hisse2.objects.all()
-        arama = request.GET.get('arama', '')
-        siralama = request.GET.get('siralama', 'isim')
+    if arama:
+        data = data.filter(isim__icontains=arama)
+    if kategori:
+        data = data.filter(kategori=kategori)
+    if siralama == 'fiyat':
+        data = data.order_by('fiyat')
+    elif siralama == 'degisim':
+        data = data.order_by('fiyat_degisim_yuzdesi')
+    elif siralama == 'hacim':
+        data = data.order_by('hacim')
+    else:
+        data = data.order_by('isim')
 
-        if arama:
-            data = data.filter(isim__icontains=arama)
-
-        if siralama == 'fiyat':
-            data = data.order_by('fiyat')
-        elif siralama == 'degisim':
-            data = data.order_by('fiyat_degisim_yuzdesi')
-        elif siralama == 'hacim':
-            data = data.order_by('hacim')
-        else:
-            data = data.order_by('isim')
-
-        print("Veritabanındaki veriler:", list(data))
-    except Exception as e:
-        print("Hata var aga:", str(e))
-        data = []
-    return render(request, 'index.html', {'data': data, 'arama': arama, 'siralama': siralama})
+    return render(request, 'index.html', {'data': data, 'arama': arama, 'siralama': siralama, 'kategori': kategori})
 
 @login_required
 def update_profile(request):

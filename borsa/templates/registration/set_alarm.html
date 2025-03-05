@@ -1,0 +1,25 @@
+<!-- borsa/templates/set_alarm.html -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mx-auto p-4 md:p-6 max-w-lg">
+    <h2 class="text-2xl font-semibold mb-4 text-center">Alarm Kur: {{ hisse.isim }}</h2>
+    <form method="POST" class="bg-white p-4 rounded-lg shadow-lg">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label for="threshold" class="text-sm text-gray-600">Fiyat Eşiği (TL)</label>
+            <input type="number" step="0.01" id="threshold" name="threshold" required class="w-full p-2 border rounded">
+        </div>
+        <div class="mb-4">
+            <label class="text-sm text-gray-600">Tür</label>
+            <select name="is_above" class="w-full p-2 border rounded">
+                <option value="above">Fiyat Üstüne Çıkarsa</option>
+                <option value="below">Fiyat Altına Düşerse</option>
+            </select>
+        </div>
+        <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 w-full">Alarm Kur</button>
+    </form>
+    <div class="text-center mt-4">
+        <a href="{% url 'tracking_list' %}" class="text-blue-600 hover:underline">Geri Dön</a>
+    </div>
+</div>
+{% endblock %}

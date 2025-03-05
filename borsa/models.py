@@ -1,8 +1,29 @@
-from django.db import models
+#models.py
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+
+class StockAlarm(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    hisse = models.ForeignKey('Hisse2', on_delete=models.CASCADE)
+    threshold = models.FloatField()  # Fiyat eşiği
+    is_above = models.BooleanField(default=True)  # Üstüne mi, altına mı alarm
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.hisse.isim} @ {self.threshold}"
+class UserStockTracking(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    hisse = models.ForeignKey('Hisse2', on_delete=models.CASCADE)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'hisse')  # Bir kullanıcı bir hisseyi birden fazla ekleyemez
+
+    def __str__(self):
+        return f"{self.user.username} - {self.hisse.isim}"
 
 
 class Hisse2(models.Model):
@@ -11,6 +32,7 @@ class Hisse2(models.Model):
     fiyat_degisim_yuzdesi = models.FloatField(default=0.0)
     hacim = models.BigIntegerField()
     zaman = models.DateTimeField(auto_now=True)
+    kategori = models.CharField(max_length=10, choices=[('XU30', 'BIST 30'), ('XU100', 'BIST 100'), ('BISTTUM', 'Tüm Hisseler')], default='BISTTUM')
 
     def __str__(self):
         return self.isim

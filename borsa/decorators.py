@@ -1,4 +1,6 @@
+#decorators.py
 from django.shortcuts import redirect
+
 from functools import wraps
 
 def premium_required(view_func):
@@ -7,5 +9,5 @@ def premium_required(view_func):
         if hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium:
             return view_func(request, *args, **kwargs)
         else:
-            return redirect('premium_info')  # Premium olmaları gerektiğini anlatan bir sayfaya yönlendir
+            return redirect('premium_info')
     return wrapper

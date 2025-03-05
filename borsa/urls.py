@@ -1,4 +1,4 @@
-from django.urls import path
+#urls.py
 from django.contrib.auth import views as auth_views
 from . import views
 from .views import chat_room
@@ -32,5 +32,9 @@ urlpatterns = [
     path('chat_room/', chat_room, name='chat_room'),
     path('profile/', views.profile_view, name='profile'),
     path('profile/update/', views.update_profile, name='update_profile'),
-
+    path('tracking_list/', views.tracking_list, name='tracking_list'),
+    path('track/add/<int:hisse_id>/', views.add_to_tracking, name='add_to_tracking'),
+    path('track/remove/<int:hisse_id>/', views.remove_from_tracking, name='remove_from_tracking'),
+    path('alarm/set/<int:hisse_id>/', views.set_alarm, name='set_alarm'),
+    path('alarm/remove/<int:alarm_id>/', views.remove_alarm, name='remove_alarm'),
  ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
