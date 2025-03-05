@@ -116,18 +116,19 @@ def borsa_anasayfa(request):
                     hisse.is_xu30 = is_xu30
                     hisse.save()
 
-        # Filtreleme, arama ve sıralama
+        # Arama ve filtreleme
         data = Hisse2.objects.all()
-        arama = request.GET.get('arama', '').strip().upper()  # Büyük harf ve boşluk temizle
+        arama = request.GET.get('arama', '').strip().upper()
         siralama = request.GET.get('siralama', 'isim')
         kategori = request.GET.get('kategori', 'BISTTUM')
-        yahoo_hisse = None  # Yahoo’dan çekilen hisse için
+        yahoo_hisse = None
 
+        # Arama işlemi
         if arama:
             data = data.filter(isim__icontains=arama)
             if not data.exists():  # Veritabanında yoksa Yahoo’dan çek
                 try:
-                    ticker = yf.Ticker(arama)  # Direkt kullanıcı girdisini sembol olarak dene
+                    ticker = yf.Ticker(arama)
                     tarih_veri = ticker.history(period="2d")
                     if not tarih_veri.empty and len(tarih_veri) >= 2:
                         onceki_kapanis = tarih_veri['Close'].iloc[-2]
@@ -138,30 +139,30 @@ def borsa_anasayfa(request):
                             'fiyat': round(bugunku_kapanis, 2),
                             'fiyat_degisim_yuzdesi': round(degisim_yuzdesi, 2),
                             'hacim': int(tarih_veri['Volume'].iloc[-1]),
-                            'is_bisttum': False,  # Yahoo’dan gelenler BISTTUM değil
+                            'is_bisttum': False,
                             'is_xu100': False,
                             'is_xu30': False,
                         }
-                        data = [yahoo_hisse]  # Tek bir hisse olarak döndür
+                        data = [yahoo_hisse]  # Sadece aranan hisseyi döndür
                     else:
                         print(f"Yahoo’da {arama} için veri yok.")
                 except Exception as e:
                     print(f"Yahoo arama hatası: {str(e)}")
         else:
+            # Filtreleme sadece arama yoksa uygulanır
             if kategori == 'XU30':
                 data = data.filter(is_xu30=True)
             elif kategori == 'XU100':
                 data = data.filter(is_xu100=True)
-            # BISTTUM seçilirse tüm hisseleri göster
 
-        if siralama == 'fiyat':
-            data = sorted(data, key=lambda x: x.fiyat if isinstance(x, dict) else x['fiyat'])
-        elif siralama == 'degisim':
-            data = sorted(data, key=lambda x: x.fiyat_degisim_yuzdesi if isinstance(x, dict) else x['fiyat_degisim_yuzdesi'])
-        elif siralama == 'hacim':
-            data = sorted(data, key=lambda x: x.hacim if isinstance(x, dict) else x['hacim'])
-        else:
-            data = sorted(data, key=lambda x: x.isim if isinstance(x, dict) else x['isim']) if arama else data.order_by('isim')
+            if siralama == 'fiyat':
+                data = data.order_by('fiyat')
+            elif siralama == 'degisim':
+                data = data.order_by('fiyat_degisim_yuzdesi')
+            elif siralama == 'hacim':
+                data = data.order_by('hacim')
+            else:
+                data = data.order_by('isim')
 
         # Sıralama ve kategori seçenekleri
         siralama_secenekleri = {
@@ -202,7 +203,7 @@ def borsa_anasayfa(request):
         'kategori': kategori,
         'siralama_secenekleri': siralama_secenekleri,
         'kategori_secenekleri': kategori_secenekleri,
-        'yahoo_hisse': yahoo_hisse  # Yahoo’dan gelen hisseyi template’e gönder
+        'yahoo_hisse': yahoo_hisse
     })
 @login_required
 def update_profile(request):
