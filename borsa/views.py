@@ -125,7 +125,7 @@ def borsa_anasayfa(request):
         data = Hisse2.objects.all()
         arama = request.GET.get('arama', '').strip().upper()
         siralama = request.GET.get('siralama', 'isim')
-        kategori = request.GET.get('kategori', 'TÜM HİSSELER')  # Varsayılan TÜM HİSSELER
+        kategori = request.GET.get('kategori', 'TÜM HİSSELER')
 
         if arama:
             data = data.filter(isim__icontains=arama)
@@ -162,10 +162,8 @@ def borsa_anasayfa(request):
                 data = data.filter(is_xu100=True)
             elif kategori == 'BISTTÜM':
                 data = data.filter(is_bisttum=True)
-            elif kategori != 'TÜM HİSSELER':  # TÜM HİSSELER hariç diğer borsalar
+            elif kategori != 'TÜM HİSSELER':
                 data = data.filter(exchange=kategori)
-
-            # TÜM HİSSELER için filtre yok, tüm data zaten çekildi
 
             if siralama == 'fiyat':
                 data = data.order_by('fiyat')
@@ -178,7 +176,7 @@ def borsa_anasayfa(request):
 
         borsa_kategorileri = list(Hisse2.objects.values_list('exchange', flat=True).distinct())
         kategori_secenekleri = {
-            'TÜM HİSSELER': kategori == 'TÜM HİSSELER',  # Yeni kategori
+            'TÜM HİSSELER': kategori == 'TÜM HİSSELER',
             'BISTTÜM': kategori == 'BISTTÜM',
             'XU30': kategori == 'XU30',
             'XU100': kategori == 'XU100',
@@ -197,8 +195,9 @@ def borsa_anasayfa(request):
     except Exception as e:
         print("Hata var aga:", str(e))
         data = []
+        arama = ''  # Varsayılan değer eklendi
         siralama = 'isim'
-        kategori = 'TÜM HİSSELER'  # Varsayılan TÜM HİSSELER
+        kategori = 'TÜM HİSSELER'
         siralama_secenekleri = {
             'isim': True,
             'fiyat': False,
@@ -206,12 +205,12 @@ def borsa_anasayfa(request):
             'hacim': False,
         }
         kategori_secenekleri = {
-            'TÜM HİSSELER': True,  # Yeni kategori
+            'TÜM HİSSELER': True,
             'BISTTÜM': False,
             'XU30': False,
             'XU100': False,
         }
-        yahoo_hisse = None
+        borsa_kategorileri = []  # Varsayılan boş liste
 
     return render(request, 'index.html', {
         'data': data,
