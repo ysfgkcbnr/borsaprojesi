@@ -32,9 +32,10 @@ class Hisse2(models.Model):
     fiyat_degisim_yuzdesi = models.FloatField(default=0.0)
     hacim = models.BigIntegerField()
     zaman = models.DateTimeField(auto_now=True)
-    is_bisttum = models.BooleanField(default=True)  # Tüm hisseler BISTTUM’da
-    is_xu100 = models.BooleanField(default=False)  # BIST 100 için
-    is_xu30 = models.BooleanField(default=False)   # BIST 30 için
+    is_bisttum = models.BooleanField(default=True)
+    is_xu100 = models.BooleanField(default=False)
+    is_xu30 = models.BooleanField(default=False)
+    exchange = models.CharField(max_length=20, default='BIST')  # Borsa kodu
 
     def __str__(self):
         return self.isim

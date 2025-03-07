@@ -69,13 +69,8 @@ def remove_from_tracking(request, hisse_id):
 
 def borsa_anasayfa(request):
     print("View çalışıyor aga!")
-    # XU30 ve XU100 hisse listeleri (örnek, sen dolduracaksın)
-    XU30_HISSELERI = [
-        'GARAN', 'AKBNK', 'ISCTR',  # 30 taneyi sen doldur
-    ]
-    XU100_HISSELERI = [
-        'XU100', 'THYAO', 'GARAN', 'AKBNK', 'ISCTR',  # 100 taneyi sen doldur
-    ]
+    XU30_HISSELERI = ['GARAN', 'AKBNK', 'ISCTR']
+    XU100_HISSELERI = ['XU100', 'THYAO', 'GARAN', 'AKBNK', 'ISCTR']
 
     try:
         hisse_sembolleri = {
@@ -87,6 +82,7 @@ def borsa_anasayfa(request):
         for sembol, isim in hisse_sembolleri.items():
             ticker = yf.Ticker(sembol)
             tarih_veri = ticker.history(period="2d")
+            info = ticker.info  # Hisse bilgilerini çek
             print(f"{isim} için çekilen veri:", tarih_veri)
 
             if not tarih_veri.empty and len(tarih_veri) >= 2:
@@ -96,6 +92,7 @@ def borsa_anasayfa(request):
 
                 is_xu30 = isim in XU30_HISSELERI
                 is_xu100 = isim in XU100_HISSELERI
+                exchange = info.get('exchange', 'BIST')  # Borsa kodunu al, yoksa BIST varsay
                 hisse, created = Hisse2.objects.get_or_create(
                     isim=isim,
                     defaults={
@@ -105,6 +102,7 @@ def borsa_anasayfa(request):
                         'is_bisttum': True,
                         'is_xu100': is_xu100,
                         'is_xu30': is_xu30,
+                        'exchange': exchange,
                     }
                 )
                 if not created:
@@ -114,6 +112,7 @@ def borsa_anasayfa(request):
                     hisse.is_bisttum = True
                     hisse.is_xu100 = is_xu100
                     hisse.is_xu30 = is_xu30
+                    hisse.exchange = exchange
                     hisse.save()
 
         # Arama ve filtreleme
@@ -123,13 +122,13 @@ def borsa_anasayfa(request):
         kategori = request.GET.get('kategori', 'BISTTUM')
         yahoo_hisse = None
 
-        # Arama işlemi
         if arama:
             data = data.filter(isim__icontains=arama)
-            if not data.exists():  # Veritabanında yoksa Yahoo’dan çek
+            if not data.exists():
                 try:
                     ticker = yf.Ticker(arama)
                     tarih_veri = ticker.history(period="2d")
+                    info = ticker.info
                     if not tarih_veri.empty and len(tarih_veri) >= 2:
                         onceki_kapanis = tarih_veri['Close'].iloc[-2]
                         bugunku_kapanis = tarih_veri['Close'].iloc[-1]
@@ -142,14 +141,14 @@ def borsa_anasayfa(request):
                             'is_bisttum': False,
                             'is_xu100': False,
                             'is_xu30': False,
+                            'exchange': info.get('exchange', 'N/A'),  # Yahoo’dan borsa
                         }
-                        data = [yahoo_hisse]  # Sadece aranan hisseyi döndür
+                        data = [yahoo_hisse]
                     else:
                         print(f"Yahoo’da {arama} için veri yok.")
                 except Exception as e:
                     print(f"Yahoo arama hatası: {str(e)}")
         else:
-            # Filtreleme sadece arama yoksa uygulanır
             if kategori == 'XU30':
                 data = data.filter(is_xu30=True)
             elif kategori == 'XU100':
@@ -164,7 +163,6 @@ def borsa_anasayfa(request):
             else:
                 data = data.order_by('isim')
 
-        # Sıralama ve kategori seçenekleri
         siralama_secenekleri = {
             'isim': siralama == 'isim',
             'fiyat': siralama == 'fiyat',

@@ -66,6 +66,7 @@
                 <thead>
                     <tr class="bg-gray-200">
                         <th class="border p-2">Hisse Adı</th>
+                        <th class="border p-2">Borsa</th>
                         <th class="border p-2">Fiyat</th>
                         <th class="border p-2">Değişim (%)</th>
                         <th class="border p-2">Hacim</th>
@@ -78,6 +79,7 @@
                     {% for stock in data %}
                         <tr class="text-center hover:bg-gray-50">
                             <td class="border p-2">{{ stock.isim }}</td>
+                            <td class="border p-2">{{ stock.exchange|default:stock.exchange }}</td>
                             <td class="border p-2">{{ stock.fiyat|default:stock.fiyat }} TL</td>
                             <td class="border p-2 {% if stock.fiyat_degisim_yuzdesi > 0 %}text-green-500{% elif stock.fiyat_degisim_yuzdesi < 0 %}text-red-500{% endif %}">
                                 {{ stock.fiyat_degisim_yuzdesi|default:stock.fiyat_degisim_yuzdesi }}%
@@ -95,7 +97,7 @@
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="7" class="border p-2 text-center text-gray-500">Henüz veri yok.</td>
+                            <td colspan="8" class="border p-2 text-center text-gray-500">Henüz veri yok.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -110,10 +112,13 @@
                             <span>{{ stock.fiyat|default:stock.fiyat }} TL</span>
                         </div>
                         <div class="flex justify-between text-sm">
+                            <span>Borsa: {{ stock.exchange|default:stock.exchange }}</span>
+                            <span>Hacim: {{ stock.hacim|default:stock.hacim }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
                             <span class="{% if stock.fiyat_degisim_yuzdesi > 0 %}text-green-500{% elif stock.fiyat_degisim_yuzdesi < 0 %}text-red-500{% endif %}">
                                 Değişim: {{ stock.fiyat_degisim_yuzdesi|default:stock.fiyat_degisim_yuzdesi }}%
                             </span>
-                            <span>Hacim: {{ stock.hacim|default:stock.hacim }}</span>
                         </div>
                         <div class="text-center mt-2">
                             {% if request.user.is_authenticated and stock in request.user.userstocktracking_set.all %}
