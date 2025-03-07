@@ -8,7 +8,7 @@
 </head>
 <body class="bg-gray-100 font-sans">
     {% load humanize %}
-    {% load borsa_tags %}  <!-- Burayı ekledik -->
+    {% load borsa_tags %}
     <nav class="bg-blue-900 text-white p-4 sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
             <div class="text-xl font-bold">Borsa Platformu</div>
@@ -55,11 +55,11 @@
                     <option value="hacim" {% if siralama_secenekleri.hacim %}selected{% endif %}>Hacme Göre</option>
                 </select>
                 <select name="kategori" onchange="this.form.submit()" class="w-full md:w-1/3 p-2 border rounded">
-                    <option value="BISTTUM" {% if kategori_secenekleri.BISTTUM %}selected{% endif %}>Tüm Hisseler</option>
+                    <option value="BISTTÜM" {% if kategori_secenekleri.BISTTÜM %}selected{% endif %}>BISTTÜM</option>
                     <option value="XU30" {% if kategori_secenekleri.XU30 %}selected{% endif %}>BIST 30</option>
                     <option value="XU100" {% if kategori_secenekleri.XU100 %}selected{% endif %}>BIST 100</option>
                     {% for borsa in borsa_kategorileri %}
-                        {% if borsa not in 'BISTTUM' and borsa not in 'XU30' and borsa not in 'XU100' %}
+                        {% if borsa not in 'BISTTÜM' and borsa not in 'XU30' and borsa not in 'XU100' %}
                             <option value="{{ borsa }}" {% if kategori_secenekleri|lookup:borsa %}selected{% endif %}>{{ borsa }}</option>
                         {% endif %}
                     {% endfor %}
@@ -88,12 +88,12 @@
                             <td class="border p-2 {% if stock.fiyat_degisim_yuzdesi > 0 %}text-green-500{% elif stock.fiyat_degisim_yuzdesi < 0 %}text-red-500{% endif %}">
                                 {{ stock.fiyat_degisim_yuzdesi|default:stock.fiyat_degisim_yuzdesi }}%
                             </td>
-                            <td class="border p-2">{{ stock.hacim|default:stock.hacim }}</td>
+                            <td class="border p-2">{{ stock.hacim|default:stock.hacim }}</td> <!-- Noktalar duruyor -->
                             <td class="border p-2">
                                 {% if request.user.is_authenticated and stock in request.user.userstocktracking_set.all %}
                                     <span class="text-gray-500">Takip Ediliyor</span>
-                                {% elif request.user.is_authenticated %}
-                                    <a href="{% url 'add_to_tracking' stock.id|default:stock.isim %}" class="text-blue-600">Takip Et</a>
+                                {% else %}
+                                    <a href="{% url 'add_to_tracking' stock.id|default:stock.isim %}" {% if not request.user.is_authenticated %}onclick="window.location.href='/login/'; return false;"{% endif %} class="text-blue-600">Takip Et</a>
                                 {% endif %}
                             </td>
                         </tr>
@@ -115,7 +115,7 @@
                         </div>
                         <div class="flex justify-between text-sm">
                             <span>Borsa: {{ stock.exchange|default:stock.exchange }}</span>
-                            <span>Hacim: {{ stock.hacim|default:stock.hacim }}</span>
+                            <span>Hacim: {{ stock.hacim|default:stock.hacim }}</span> <!-- Noktalar duruyor -->
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="{% if stock.fiyat_degisim_yuzdesi > 0 %}text-green-500{% elif stock.fiyat_degisim_yuzdesi < 0 %}text-red-500{% endif %}">
@@ -125,8 +125,8 @@
                         <div class="text-center mt-2">
                             {% if request.user.is_authenticated and stock in request.user.userstocktracking_set.all %}
                                 <span class="text-gray-500">Takip Ediliyor</span>
-                            {% elif request.user.is_authenticated %}
-                                <a href="{% url 'add_to_tracking' stock.id|default:stock.isim %}" class="text-blue-600">Takip Et</a>
+                            {% else %}
+                                <a href="{% url 'add_to_tracking' stock.id|default:stock.isim %}" {% if not request.user.is_authenticated %}onclick="window.location.href='/login/'; return false;"{% endif %} class="text-blue-600">Takip Et</a>
                             {% endif %}
                         </div>
                     </div>

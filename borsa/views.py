@@ -122,16 +122,14 @@ def borsa_anasayfa(request):
                     hisse.exchange = exchange
                     hisse.save()
 
-        # Arama ve filtreleme
         data = Hisse2.objects.all()
         arama = request.GET.get('arama', '').strip().upper()
         siralama = request.GET.get('siralama', 'isim')
-        kategori = request.GET.get('kategori', 'BISTTUM')
-        yahoo_hisse = None
+        kategori = request.GET.get('kategori', 'BISTTÜM')  # Varsayılan BISTTÜM
 
         if arama:
             data = data.filter(isim__icontains=arama)
-            if not data.exists():  # Veritabanında yoksa ekle
+            if not data.exists():
                 try:
                     ticker = yf.Ticker(arama)
                     tarih_veri = ticker.history(period="2d")
@@ -140,7 +138,7 @@ def borsa_anasayfa(request):
                         onceki_kapanis = tarih_veri['Close'].iloc[-2]
                         bugunku_kapanis = tarih_veri['Close'].iloc[-1]
                         degisim_yuzdesi = ((
-                                                       bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
+                                                       bugunku_kapanis - onceki_kapanis) / onceki_kapanis).__float__() * 100 if onceki_kapanis != 0 else 0
                         exchange = EXCHANGE_MAP.get(info.get('exchange', 'N/A'), info.get('exchange', 'N/A'))
                         hisse, created = Hisse2.objects.get_or_create(
                             isim=arama,
@@ -148,13 +146,13 @@ def borsa_anasayfa(request):
                                 'fiyat': round(bugunku_kapanis, 2),
                                 'fiyat_degisim_yuzdesi': round(degisim_yuzdesi, 2),
                                 'hacim': int(tarih_veri['Volume'].iloc[-1]),
-                                'is_bisttum': False,  # Yeni hisse BISTTUM’a eklenmez
+                                'is_bisttum': False,
                                 'is_xu100': False,
                                 'is_xu30': False,
                                 'exchange': exchange,
                             }
                         )
-                        data = Hisse2.objects.filter(isim=arama)  # Yeni ekleneni çek
+                        data = Hisse2.objects.filter(isim=arama)
                 except Exception as e:
                     print(f"Yahoo arama hatası: {str(e)}")
         else:
@@ -162,7 +160,7 @@ def borsa_anasayfa(request):
                 data = data.filter(is_xu30=True)
             elif kategori == 'XU100':
                 data = data.filter(is_xu100=True)
-            elif kategori != 'BISTTUM':  # Dinamik borsa filtresi
+            elif kategori != 'BISTTÜM':  # BISTTÜM hariç diğer borsalar
                 data = data.filter(exchange=kategori)
 
             if siralama == 'fiyat':
@@ -174,10 +172,9 @@ def borsa_anasayfa(request):
             else:
                 data = data.order_by('isim')
 
-        # Dinamik kategori seçenekleri (tabloda bulunan borsalar)
         borsa_kategorileri = list(Hisse2.objects.values_list('exchange', flat=True).distinct())
         kategori_secenekleri = {
-            'BISTTUM': kategori == 'BISTTUM',
+            'BISTTÜM': kategori == 'BISTTÜM',  # Büyük harf
             'XU30': kategori == 'XU30',
             'XU100': kategori == 'XU100',
         }
@@ -196,7 +193,7 @@ def borsa_anasayfa(request):
         print("Hata var aga:", str(e))
         data = []
         siralama = 'isim'
-        kategori = 'BISTTUM'
+        kategori = 'BISTTÜM'  # Varsayılan BISTTÜM
         siralama_secenekleri = {
             'isim': True,
             'fiyat': False,
@@ -204,7 +201,7 @@ def borsa_anasayfa(request):
             'hacim': False,
         }
         kategori_secenekleri = {
-            'BISTTUM': True,
+            'BISTTÜM': True,  # Büyük harf
             'XU30': False,
             'XU100': False,
         }
@@ -217,7 +214,7 @@ def borsa_anasayfa(request):
         'kategori': kategori,
         'siralama_secenekleri': siralama_secenekleri,
         'kategori_secenekleri': kategori_secenekleri,
-        'borsa_kategorileri': borsa_kategorileri  # Dinamik borsa listesi
+        'borsa_kategorileri': borsa_kategorileri
     })
 @login_required
 def update_profile(request):
