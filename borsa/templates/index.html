@@ -57,6 +57,11 @@
                     <option value="BISTTUM" {% if kategori_secenekleri.BISTTUM %}selected{% endif %}>Tüm Hisseler</option>
                     <option value="XU30" {% if kategori_secenekleri.XU30 %}selected{% endif %}>BIST 30</option>
                     <option value="XU100" {% if kategori_secenekleri.XU100 %}selected{% endif %}>BIST 100</option>
+                    {% for borsa in borsa_kategorileri %}
+                        {% if borsa not in 'BISTTUM' and borsa not in 'XU30' and borsa not in 'XU100' %}
+                            <option value="{{ borsa }}" {% if kategori_secenekleri|lookup:borsa %}selected{% endif %}>{{ borsa }}</option>
+                        {% endif %}
+                    {% endfor %}
                 </select>
                 <button type="submit" class="bg-blue-900 text-white p-2 rounded hover:bg-blue-800">Filtrele</button>
             </form>
@@ -70,8 +75,6 @@
                         <th class="border p-2">Fiyat</th>
                         <th class="border p-2">Değişim (%)</th>
                         <th class="border p-2">Hacim</th>
-                        <th class="border p-2">Yüksek</th>
-                        <th class="border p-2">Düşük</th>
                         <th class="border p-2">İşlem</th>
                     </tr>
                 </thead>
@@ -85,8 +88,6 @@
                                 {{ stock.fiyat_degisim_yuzdesi|default:stock.fiyat_degisim_yuzdesi }}%
                             </td>
                             <td class="border p-2">{{ stock.hacim|default:stock.hacim }}</td>
-                            <td class="border p-2">{{ stock.yuksek|default:'N/A' }} TL</td>
-                            <td class="border p-2">{{ stock.dusuk|default:'N/A' }} TL</td>
                             <td class="border p-2">
                                 {% if request.user.is_authenticated and stock in request.user.userstocktracking_set.all %}
                                     <span class="text-gray-500">Takip Ediliyor</span>
@@ -97,7 +98,7 @@
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="8" class="border p-2 text-center text-gray-500">Henüz veri yok.</td>
+                            <td colspan="6" class="border p-2 text-center text-gray-500">Henüz veri yok.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
