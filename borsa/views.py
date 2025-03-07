@@ -69,8 +69,16 @@ def remove_from_tracking(request, hisse_id):
 
 def borsa_anasayfa(request):
     print("View çalışıyor aga!")
+    # XU30 ve XU100 hisse listeleri
     XU30_HISSELERI = ['GARAN', 'AKBNK', 'ISCTR']
     XU100_HISSELERI = ['XU100', 'THYAO', 'GARAN', 'AKBNK', 'ISCTR']
+
+    # Exchange kodlarını çevirme sözlüğü
+    EXCHANGE_MAP = {
+        'XIST': 'BIST',
+        'NMS': 'NASDAQ',
+        'NYQ': 'NYSE',
+    }
 
     try:
         hisse_sembolleri = {
@@ -88,11 +96,13 @@ def borsa_anasayfa(request):
             if not tarih_veri.empty and len(tarih_veri) >= 2:
                 onceki_kapanis = tarih_veri['Close'].iloc[-2]
                 bugunku_kapanis = tarih_veri['Close'].iloc[-1]
-                degisim_yuzdesi = ((bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
+                degisim_yuzdesi = ((
+                                               bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
 
                 is_xu30 = isim in XU30_HISSELERI
                 is_xu100 = isim in XU100_HISSELERI
-                exchange = info.get('exchange', 'BIST')  # Borsa kodunu al, yoksa BIST varsay
+                exchange = EXCHANGE_MAP.get(info.get('exchange', 'BIST'),
+                                            info.get('exchange', 'BIST'))  # Borsa kodunu çevir
                 hisse, created = Hisse2.objects.get_or_create(
                     isim=isim,
                     defaults={
@@ -131,8 +141,11 @@ def borsa_anasayfa(request):
                     info = ticker.info
                     if not tarih_veri.empty and len(tarih_veri) >= 2:
                         onceki_kapanis = tarih_veri['Close'].iloc[-2]
-                        bugunku_kapanis = tarih_veri['Close'].iloc[-1]
-                        degisim_yuzdesi = ((bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
+                        bugunku_kapanis = ticker.history(period="1d")['Close'].iloc[-1]
+                        degisim_yuzdesi = ((
+                                                       bugunku_kapanis - onceki_kapanis) / onceki_kapanis) * 100 if onceki_kapanis != 0 else 0
+                        exchange = EXCHANGE_MAP.get(info.get('exchange', 'N/A'),
+                                                    info.get('exchange', 'N/A'))  # Borsa kodunu çevir
                         yahoo_hisse = {
                             'isim': arama,
                             'fiyat': round(bugunku_kapanis, 2),
@@ -141,7 +154,7 @@ def borsa_anasayfa(request):
                             'is_bisttum': False,
                             'is_xu100': False,
                             'is_xu30': False,
-                            'exchange': info.get('exchange', 'N/A'),  # Yahoo’dan borsa
+                            'exchange': exchange,
                         }
                         data = [yahoo_hisse]
                     else:
