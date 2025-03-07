@@ -126,7 +126,7 @@
                         <div class="text-center mt-2">
                             {% if request.user.is_authenticated and stock in request.user.userstocktracking_set.all %}
                                 <span class="text-gray-500">Takip Ediliyor</span>
-                            {% elsesın {% else %}
+                            {% else %}
                                 <a href="{% url 'add_to_tracking' stock.id|default:stock.isim %}" {% if not request.user.is_authenticated %}onclick="window.location.href='/login/'; return false;"{% endif %} class="text-blue-600">Takip Et</a>
                             {% endif %}
                         </div>
