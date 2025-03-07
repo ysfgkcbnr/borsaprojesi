@@ -15,9 +15,12 @@ from pathlib import Path
 import os
 import dj_database_url
 
-DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://borsa_db_user:k2bs1qeoYSKk4pLgiUGeLHvKS6lt0401@dpg-cv5l84d6l47c73cup7dg-a/borsa_db')
+
+
+DATABASE_URL = os.environ.get('DATABASE_URL', 'postgres://borsa_db_user:k2bs1qeoYSKk4pLgiUGeLHvKS6lt0401@dpg-cv5l84d6l47c73cup7dg-a/borsa_db')
+print("DATABASE_URL:", repr(DATABASE_URL))  # Ham string’i görelim
 DATABASES = {
-    'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+    'default': dj_database_url.parse(DATABASE_URL)
 }
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
