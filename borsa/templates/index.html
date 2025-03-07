@@ -55,7 +55,7 @@
                     <option value="hacim" {% if siralama_secenekleri.hacim %}selected{% endif %}>Hacme Göre</option>
                 </select>
                 <select name="kategori" onchange="this.form.submit()" class="w-full md:w-1/3 p-2 border rounded">
-                    <option value="TÜM HİSSELER" {% if kategori_secenekleri.TÜM HİSSELER %}selected{% endif %}>TÜM HİSSELER</option>
+                    <option value="TÜM HİSSELER" {% if kategori_secenekleri|lookup:'TÜM HİSSELER' %}selected{% endif %}>TÜM HİSSELER</option>
                     <option value="BISTTÜM" {% if kategori_secenekleri.BISTTÜM %}selected{% endif %}>BISTTÜM</option>
                     <option value="XU30" {% if kategori_secenekleri.XU30 %}selected{% endif %}>BIST 30</option>
                     <option value="XU100" {% if kategori_secenekleri.XU100 %}selected{% endif %}>BIST 100</option>
