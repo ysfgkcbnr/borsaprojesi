@@ -88,7 +88,7 @@
                             <td class="border p-2 {% if stock.fiyat_degisim_yuzdesi > 0 %}text-green-500{% elif stock.fiyat_degisim_yuzdesi < 0 %}text-red-500{% endif %}">
                                 {{ stock.fiyat_degisim_yuzdesi|default:stock.fiyat_degisim_yuzdesi }}%
                             </td>
-                            <td class="border p-2">{{ stock.hacim|default:stock.hacim }}</td> <!-- Noktalar duruyor -->
+                            <td class="border p-2">{{ stock.hacim|default:stock.hacim|intcomma }}</td> <!-- Noktayı zorla ekledik -->
                             <td class="border p-2">
                                 {% if request.user.is_authenticated and stock in request.user.userstocktracking_set.all %}
                                     <span class="text-gray-500">Takip Ediliyor</span>
@@ -115,7 +115,7 @@
                         </div>
                         <div class="flex justify-between text-sm">
                             <span>Borsa: {{ stock.exchange|default:stock.exchange }}</span>
-                            <span>Hacim: {{ stock.hacim|default:stock.hacim }}</span> <!-- Noktalar duruyor -->
+                            <span>Hacim: {{ stock.hacim|default:stock.hacim|intcomma }}</span> <!-- Noktayı zorla ekledik -->
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="{% if stock.fiyat_degisim_yuzdesi > 0 %}text-green-500{% elif stock.fiyat_degisim_yuzdesi < 0 %}text-red-500{% endif %}">
