@@ -125,7 +125,7 @@ def borsa_anasayfa(request):
         data = Hisse2.objects.all()
         arama = request.GET.get('arama', '').strip().upper()
         siralama = request.GET.get('siralama', 'isim')
-        kategori = request.GET.get('kategori', 'BISTTÜM')  # Varsayılan BISTTÜM
+        kategori = request.GET.get('kategori', 'TÜM HİSSELER')  # Varsayılan TÜM HİSSELER
 
         if arama:
             data = data.filter(isim__icontains=arama)
@@ -160,8 +160,12 @@ def borsa_anasayfa(request):
                 data = data.filter(is_xu30=True)
             elif kategori == 'XU100':
                 data = data.filter(is_xu100=True)
-            elif kategori != 'BISTTÜM':  # BISTTÜM hariç diğer borsalar
+            elif kategori == 'BISTTÜM':
+                data = data.filter(is_bisttum=True)
+            elif kategori != 'TÜM HİSSELER':  # TÜM HİSSELER hariç diğer borsalar
                 data = data.filter(exchange=kategori)
+
+            # TÜM HİSSELER için filtre yok, tüm data zaten çekildi
 
             if siralama == 'fiyat':
                 data = data.order_by('fiyat')
@@ -174,7 +178,8 @@ def borsa_anasayfa(request):
 
         borsa_kategorileri = list(Hisse2.objects.values_list('exchange', flat=True).distinct())
         kategori_secenekleri = {
-            'BISTTÜM': kategori == 'BISTTÜM',  # Büyük harf
+            'TÜM HİSSELER': kategori == 'TÜM HİSSELER',  # Yeni kategori
+            'BISTTÜM': kategori == 'BISTTÜM',
             'XU30': kategori == 'XU30',
             'XU100': kategori == 'XU100',
         }
@@ -193,7 +198,7 @@ def borsa_anasayfa(request):
         print("Hata var aga:", str(e))
         data = []
         siralama = 'isim'
-        kategori = 'BISTTÜM'  # Varsayılan BISTTÜM
+        kategori = 'TÜM HİSSELER'  # Varsayılan TÜM HİSSELER
         siralama_secenekleri = {
             'isim': True,
             'fiyat': False,
@@ -201,7 +206,8 @@ def borsa_anasayfa(request):
             'hacim': False,
         }
         kategori_secenekleri = {
-            'BISTTÜM': True,  # Büyük harf
+            'TÜM HİSSELER': True,  # Yeni kategori
+            'BISTTÜM': False,
             'XU30': False,
             'XU100': False,
         }
