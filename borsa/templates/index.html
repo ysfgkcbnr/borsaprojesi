@@ -1,107 +1,120 @@
-<!-- Masaüstü Tablo -->
-<table class="w-full border-collapse border border-gray-300 text-xs md:text-sm hidden md:table">
-    <thead>
-        <tr class="bg-gray-200">
-            <th id="sort-isim" class="border p-2 cursor-pointer">Hisse Adı</th>
-            <th class="border p-2">Borsa</th>
-            <th id="sort-fiyat" class="border p-2 cursor-pointer">Fiyat</th>
-            <th id="sort-degisim" class="border p-2 cursor-pointer">Değişim (%)</th>
-            <th id="sort-hacim" class="border p-2 cursor-pointer">Hacim</th>
-            <th class="border p-2">İşlem</th>
-        </tr>
-    </thead>
-    <tbody id="borsa-tablo">
-        <!-- Mevcut tbody içeriği aynı kalacak -->
-    </tbody>
-</table>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borsa Tablosu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-4">
 
-<!-- Mevcut script tag'inin içeriğini aşağıdaki ile değiştirin -->
-<script>
-    const menuBtn = document.getElementById('menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    menuBtn.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-    });
+    <!-- Masaüstü Tablo -->
+    <table class="w-full border-collapse border border-gray-300 text-xs md:text-sm hidden md:table">
+        <thead>
+            <tr class="bg-gray-200">
+                <th id="sort-isim" class="border p-2 cursor-pointer">Hisse Adı</th>
+                <th class="border p-2">Borsa</th>
+                <th id="sort-fiyat" class="border p-2 cursor-pointer">Fiyat</th>
+                <th id="sort-degisim" class="border p-2 cursor-pointer">Değişim (%)</th>
+                <th id="sort-hacim" class="border p-2 cursor-pointer">Hacim</th>
+                <th class="border p-2">İşlem</th>
+            </tr>
+        </thead>
+        <tbody id="borsa-tablo">
+            <!-- Dinamik veriler buraya yüklenecek -->
+        </tbody>
+    </table>
 
-    // Sıralama durumlarını tutacak obje
-    const sortStates = {
-        'isim': 0,    // 0: orijinal, 1: A-Z, 2: Z-A
-        'fiyat': 0,   // 0: orijinal, 1: azalan-artan, 2: artan-azalan
-        'degisim': 0,
-        'hacim': 0
-    };
-
-    // Tablo verilerini alacak fonksiyon
-    function getTableData() {
-        const rows = Array.from(document.querySelectorAll('#borsa-tablo tr'));
-        return rows.map(row => ({
-            isim: row.cells[0].textContent.trim(),
-            borsa: row.cells[1].textContent.trim(),
-            fiyat: parseFloat(row.cells[2].textContent.replace(' TL', '')),
-            degisim: parseFloat(row.cells[3].textContent.replace('%', '')),
-            hacim: parseInt(row.cells[4].textContent.replace(/,/g, '')),
-            html: row.outerHTML
-        }));
-    }
-
-    // Sıralama fonksiyonu
-    function sortTable(column) {
-        const tbody = document.getElementById('borsa-tablo');
-        let data = getTableData();
-
-        sortStates[column] = (sortStates[column] + 1) % 3;
-
-        if (sortStates[column] === 1) {
-            if (column === 'isim') {
-                data.sort((a, b) => a.isim.localeCompare(b.isim));
-            } else if (column === 'fiyat') {
-                data.sort((a, b) => a.fiyat - b.fiyat);
-            } else if (column === 'degisim') {
-                data.sort((a, b) => a.degisim - b.degisim);
-            } else if (column === 'hacim') {
-                data.sort((a, b) => a.hacim - b.hacim);
-            }
-        } else if (sortStates[column] === 2) {
-            if (column === 'isim') {
-                data.sort((a, b) => b.isim.localeCompare(a.isim));
-            } else if (column === 'fiyat') {
-                data.sort((a, b) => b.fiyat - a.fiyat);
-            } else if (column === 'degisim') {
-                data.sort((a, b) => b.degisim - a.degisim);
-            } else if (column === 'hacim') {
-                data.sort((a, b) => b.hacim - a.hacim);
-            }
+    <script>
+        // Mobil Menü Aç/Kapa
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (menuBtn && mobileMenu) {
+            menuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
         }
 
-        // Sıralama 0 ise (orijinal durum) tabloyu yeniden yükle
-        if (sortStates[column] === 0) {
-            guncelleTablo();
-            return;
+        // Sıralama durumlarını tutan obje
+        const sortStates = {
+            'isim': 0, 'fiyat': 0, 'degisim': 0, 'hacim': 0
+        };
+
+        // API veya HTML üzerinden tablo verilerini alma fonksiyonu
+        function getTableData() {
+            const rows = Array.from(document.querySelectorAll('#borsa-tablo tr'));
+            return rows.map(row => ({
+                isim: row.cells[0].textContent.trim(),
+                borsa: row.cells[1].textContent.trim(),
+                fiyat: parseFloat(row.cells[2].textContent.replace(' TL', '')),
+                degisim: parseFloat(row.cells[3].textContent.replace('%', '')),
+                hacim: parseInt(row.cells[4].textContent.replace(/,/g, '')),
+                html: row.outerHTML
+            }));
         }
 
-        // Sıralanmış veriyi tabloya uygula
-        tbody.innerHTML = data.map(item => item.html).join('');
-    }
+        // Tabloyu sıralama fonksiyonu
+        function sortTable(column) {
+            const tbody = document.getElementById('borsa-tablo');
+            let data = getTableData();
 
-    // Tıklama olaylarını ekle
-    document.getElementById('sort-isim').addEventListener('click', () => sortTable('isim'));
-    document.getElementById('sort-fiyat').addEventListener('click', () => sortTable('fiyat'));
-    document.getElementById('sort-degisim').addEventListener('click', () => sortTable('degisim'));
-    document.getElementById('sort-hacim').addEventListener('click', () => sortTable('hacim'));
+            sortStates[column] = (sortStates[column] + 1) % 3;
 
-    // Mevcut güncelleme fonksiyonu
-    function guncelleTablo() {
-        fetch(window.location.href)
-            .then(response => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const yeniTablo = doc.querySelector('#borsa-tablo');
-                document.querySelector('#borsa-tablo').innerHTML = yeniTablo.innerHTML;
-                // Sıralama durumlarını sıfırla
-                Object.keys(sortStates).forEach(key => sortStates[key] = 0);
-            })
-            .catch(error => console.log("Hata aga:", error));
-    }
-    setInterval(guncelleTablo, 30000);
-</script>
+            if (sortStates[column] === 1) {
+                data.sort((a, b) => column === 'isim' ? a.isim.localeCompare(b.isim) : a[column] - b[column]);
+            } else if (sortStates[column] === 2) {
+                data.sort((a, b) => column === 'isim' ? b.isim.localeCompare(a.isim) : b[column] - a[column]);
+            }
+
+            if (sortStates[column] === 0) {
+                guncelleTablo(); // Orijinal verileri yükle
+                return;
+            }
+
+            tbody.innerHTML = data.map(item => item.html).join('');
+        }
+
+        // Sıralama butonları için event listener ekleme
+        document.getElementById('sort-isim').addEventListener('click', () => sortTable('isim'));
+        document.getElementById('sort-fiyat').addEventListener('click', () => sortTable('fiyat'));
+        document.getElementById('sort-degisim').addEventListener('click', () => sortTable('degisim'));
+        document.getElementById('sort-hacim').addEventListener('click', () => sortTable('hacim'));
+
+        // Tabloyu güncelleme fonksiyonu
+        function guncelleTablo() {
+            fetch('/api/borsa-verileri') // Verileri çekeceğin gerçek API buraya gelmeli
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('borsa-tablo');
+                    tbody.innerHTML = ""; // Eski verileri temizle
+
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="border p-2">${item.isim}</td>
+                            <td class="border p-2">${item.borsa}</td>
+                            <td class="border p-2">${item.fiyat} TL</td>
+                            <td class="border p-2">${item.degisim} %</td>
+                            <td class="border p-2">${item.hacim.toLocaleString()}</td>
+                            <td class="border p-2">
+                                <button class="bg-blue-500 text-white px-2 py-1 rounded">Al</button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+
+                    // Sıralama durumlarını sıfırla
+                    Object.keys(sortStates).forEach(key => sortStates[key] = 0);
+                })
+                .catch(error => console.error("Veri yükleme hatası:", error));
+        }
+
+        // İlk yüklemede tabloyu güncelle
+        guncelleTablo();
+
+        // Tabloyu her 30 saniyede bir güncelle
+        setInterval(guncelleTablo, 30000);
+    </script>
+
+</body>
+</html>
