@@ -13,15 +13,17 @@ import os
 from pathlib import Path
 # settings.py
 import os
-import dj_database_url
 
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-DATABASE_URL = os.environ.get('DATABASE_URL', 'postgres://borsa_db_user:k2bs1qeoYSKk4pLgiUGeLHvKS6lt0401@dpg-cv5l84d6l47c73cup7dg-a/borsa_db')
-print("DATABASE_URL:", repr(DATABASE_URL))  # Ham string’i görelim
 DATABASES = {
-    'default': dj_database_url.parse(DATABASE_URL)
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 }
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -63,6 +65,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"  # Sunucu için gerekli
 
 CORS_ALLOWED_ORIGINS = [
     "https://borsaprojesi-1.onrender.com",
+    "http://localhost:8000"
 ]
 # Application definition
 
