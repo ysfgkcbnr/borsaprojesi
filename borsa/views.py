@@ -33,6 +33,23 @@ from .models import UserStockTracking
 from .models import StockAlarm
 from django.db.models import Q
 
+
+def register(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Başarıyla kayıt oldunuz! Giriş yapabilirsiniz.")
+            return redirect('login')
+        else:
+            print(form.errors)  # Hata mesajlarını terminale yazdır
+            messages.error(request, "Kayıt sırasında bir hata oluştu!")
+    else:
+        form = CustomUserCreationForm()
+
+    return render(request, 'registration/register.html', {'form': form})
+
+
 @login_required
 def set_alarm(request, hisse_id):
     hisse = get_object_or_404(Hisse2, id=hisse_id)
@@ -256,15 +273,7 @@ def update_profile(request):
         form = ProfileUpdateForm(instance=user_profile)
 
     return render(request, 'registration/update_profile.html', {'form': form, 'user_profile': user_profile})
-def register(request):
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')  # Kayıt olduktan sonra login sayfasına yönlendir
-    else:
-        form = CustomUserCreationForm()
-    return render(request, 'registration/register.html', {'form': form})
+
 
 # Kullanıcı kaydı fonksiyonunu tek bir şekilde tanımlayın:
 

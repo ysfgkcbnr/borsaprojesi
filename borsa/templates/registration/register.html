@@ -19,7 +19,7 @@
 
         .content {
             margin-top: 80px;
-        }git g
+        }
 
         .container {
             background-color: #fff;
@@ -99,6 +99,11 @@
         .footer a:hover {
             text-decoration: underline;
         }
+
+        .errorlist {
+            color: red;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -124,15 +129,51 @@
                 <div class="input-group">
                     <label for="username">Kullanıcı Adı</label>
                     <input type="text" id="username" name="username" required>
+                    {% if form.username.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.username.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                 </div>
+
                 <div class="input-group">
                     <label for="email">E-posta</label>
                     <input type="email" id="email" name="email" required>
+                    {% if form.email.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.email.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                 </div>
+
                 <div class="input-group">
                     <label for="password">Şifre</label>
-                    <input type="password" id="password" name="password" required>
+                    <input type="password" id="password" name="password1" required>
+                    {% if form.password1.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.password1.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                 </div>
+
+                <div class="input-group">
+                    <label for="password2">Şifre Tekrar</label>
+                    <input type="password" id="password2" name="password2" required>
+                    {% if form.password2.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.password2.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
                 <button type="submit">Kayıt Ol</button>
                 <button type="button" class="back-button" onclick="history.back()">Geri Dön</button>
             </form>
