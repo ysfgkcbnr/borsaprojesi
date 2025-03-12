@@ -87,16 +87,8 @@ def remove_from_tracking(request, hisse_id):
 
 def borsa_anasayfa(request):
     print("View çalışıyor aga!")
-
-    # XU30 ve XU100 listeleri (senin eklemen gerekenler için şimdilik böyle)
-    XU30_HISSELERI = [
-        'AEFES', 'AKBNK', 'ALARK', 'ASELS', 'ASTOR', 'BIMAS', 'EKGYO', 'ENKAI', 'EREGL', 'FROTO',
-
-    ]
-    XU100_HISSELERI = [
-        'AEFES', 'AGHOL', 'AGROT', 'AKBNK', 'AKFYE', 'AKSA', 'AKSEN', 'ALARK', 'ALFAS', 'ALTNY',
-
-    ]
+    XU30_HISSELERI = ['GARAN', 'AKBNK', 'ISCTR']
+    XU100_HISSELERI = ['XU100', 'THYAO', 'GARAN', 'AKBNK', 'ISCTR']
 
     EXCHANGE_MAP = {
         'XIST': 'BIST',
@@ -104,17 +96,13 @@ def borsa_anasayfa(request):
         'NYQ': 'NYSE',
     }
 
-    # Listenden gelen tüm hisse sembolleri (dinamik olarak eklenecek)
-    tum_hisseler = [
-        "A1CAP", "ACSEL", "ADEL", "ADESE", "ADGYO", "AEFES", "AFYON", "AGESA", "AGHOL", "AGROT",
-        "AGYO", "AHGAZ", "AHSGY", "AKBNK", "AKCNS", "AKENR", "AKFGY", "AKFIS", "AKFYE", "AKGRT",
-
-    ]
-
-    # Dinamik olarak hisse_sembolleri sözlüğünü oluştur
-    hisse_sembolleri = {f"{hisse}.IS": hisse for hisse in tum_hisseler}
-
     try:
+        hisse_sembolleri = {
+            "XU100.IS": "XU100",
+            "GARAN.IS": "GARAN",
+            "THYAO.IS": "THYAO",
+        }
+
         for sembol, isim in hisse_sembolleri.items():
             ticker = yf.Ticker(sembol)
             tarih_veri = ticker.history(period="2d")
@@ -136,7 +124,7 @@ def borsa_anasayfa(request):
                         'fiyat': round(bugunku_kapanis, 2),
                         'fiyat_degisim_yuzdesi': round(degisim_yuzdesi, 2),
                         'hacim': int(tarih_veri['Volume'].iloc[-1]),
-                        'is_bisttum': True,  # Hepsi BIST olduğu için True
+                        'is_bisttum': True,
                         'is_xu100': is_xu100,
                         'is_xu30': is_xu30,
                         'exchange': exchange,
@@ -152,9 +140,6 @@ def borsa_anasayfa(request):
                     hisse.exchange = exchange
                     hisse.save()
 
-            time.sleep(1)
-
-        # Geri kalan kod aynı kalıyor...
         data = Hisse2.objects.all()
         arama = request.GET.get('arama', '').strip().upper()
         siralama = request.GET.get('siralama', 'isim')
@@ -228,7 +213,7 @@ def borsa_anasayfa(request):
     except Exception as e:
         print("Hata var aga:", str(e))
         data = []
-        arama = ''
+        arama = ''  # Varsayılan değer eklendi
         siralama = 'isim'
         kategori = 'TÜM HİSSELER'
         siralama_secenekleri = {
@@ -243,7 +228,7 @@ def borsa_anasayfa(request):
             'XU30': False,
             'XU100': False,
         }
-        borsa_kategorileri = []
+        borsa_kategorileri = []  # Varsayılan boş liste
 
     return render(request, 'index.html', {
         'data': data,
@@ -254,6 +239,7 @@ def borsa_anasayfa(request):
         'kategori_secenekleri': kategori_secenekleri,
         'borsa_kategorileri': borsa_kategorileri
     })
+
 @login_required
 def update_profile(request):
     if request.method == 'POST':
