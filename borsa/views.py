@@ -32,6 +32,7 @@ from .models import Hisse2
 from .models import UserStockTracking
 from .models import StockAlarm
 from django.db.models import Q
+import time  # Bunu dosyanın başına ekle
 
 
 def register(request):
@@ -223,6 +224,8 @@ def borsa_anasayfa(request):
                     hisse.is_xu30 = is_xu30
                     hisse.exchange = exchange
                     hisse.save()
+
+            time.sleep(1)
 
         # Geri kalan kod aynı kalıyor...
         data = Hisse2.objects.all()
