@@ -72,24 +72,25 @@
             <table class="w-full border-collapse border border-gray-300 text-xs md:text-sm hidden md:table">
                 <thead>
                     <tr class="bg-gray-200">
-                        <th class="border p-2">Hisse Adı</th>
-                        <th class="border p-2">Borsa</th>
-                        <th class="border p-2">Fiyat</th>
-                        <th class="border p-2">Değişim (%)</th>
-                        <th class="border p-2">Hacim</th>
+                        <th class="border p-2 cursor-pointer" data-sort="isim">Hisse Adı</th>
+                        <th class="border p-2 cursor-pointer" data-sort="exchange">Borsa</th>
+                        <th class="border p-2 cursor-pointer" data-sort="fiyat">Fiyat</th>
+                        <th class="border p-2 cursor-pointer" data-sort="degisim">Değişim (%)</th>
+                        <th class="border p-2 cursor-pointer" data-sort="hacim">Hacim</th>
                         <th class="border p-2">İşlem</th>
                     </tr>
                 </thead>
                 <tbody id="borsa-tablo">
                     {% for stock in data %}
                         <tr class="text-center hover:bg-gray-50">
-                            <td class="border p-2">{{ stock.isim }}</td>
-                            <td class="border p-2">{{ stock.exchange|default:stock.exchange }}</td>
-                            <td class="border p-2">{{ stock.fiyat|default:stock.fiyat }} TL</td>
-                            <td class="border p-2 {% if stock.fiyat_degisim_yuzdesi > 0 %}text-green-500{% elif stock.fiyat_degisim_yuzdesi < 0 %}text-red-500{% endif %}">
+                            <td class="border p-2" data-value="{{ stock.isim }}">{{ stock.isim }}</td>
+                            <td class="border p-2" data-value="{{ stock.exchange|default:stock.exchange }}">{{ stock.exchange|default:stock.exchange }}</td>
+                            <td class="border p-2" data-value="{{ stock.fiyat|default:stock.fiyat|floatformat:2 }}">{{ stock.fiyat|default:stock.fiyat }} TL</td>
+                            <td class="border p-2 {% if stock.fiyat_degisim_yuzdesi > 0 %}text-green-500{% elif stock.fiyat_degisim_yuzdesi < 0 %}text-red-500{% endif %}"
+                                data-value="{{ stock.fiyat_degisim_yuzdesi|default:stock.fiyat_degisim_yuzdesi }}">
                                 {{ stock.fiyat_degisim_yuzdesi|default:stock.fiyat_degisim_yuzdesi }}%
                             </td>
-                            <td class="border p-2">{{ stock.hacim|default:stock.hacim|intcomma }}</td>
+                            <td class="border p-2" data-value="{{ stock.hacim|default:stock.hacim }}">{{ stock.hacim|default:stock.hacim|intcomma }}</td>
                             <td class="border p-2">
                                 {% if request.user.is_authenticated and stock in request.user.userstocktracking_set.all %}
                                     <span class="text-gray-500">Takip Ediliyor</span>
@@ -106,7 +107,7 @@
                 </tbody>
             </table>
 
-            <!-- Mobil Liste -->
+            <!-- Mobil Liste (değişmedi) -->
             <div class="md:hidden space-y-4">
                 {% for stock in data %}
                     <div class="bg-gray-50 p-3 rounded-lg shadow-sm">
@@ -144,6 +145,67 @@
         menuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
+
+        // Sıralama için durum takibi
+        const sortDirections = {
+            'isim': true,
+            'exchange': true,
+            'fiyat': true,
+            'degisim': true,
+            'hacim': true
+        };
+
+        // Tablo başlıklarına tıklama olayları
+        document.querySelectorAll('th[data-sort]').forEach(header => {
+            header.addEventListener('click', () => {
+                const sortKey = header.getAttribute('data-sort');
+                sortTable(sortKey);
+            });
+        });
+
+        function sortTable(sortKey) {
+            const tbody = document.getElementById('borsa-tablo');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // Sıralama yönünü değiştir
+            sortDirections[sortKey] = !sortDirections[sortKey];
+            const isAscending = sortDirections[sortKey];
+
+            rows.sort((a, b) => {
+                let aValue = a.querySelector(`td[data-value][data-value="${a.querySelector(`td[data-value]`).getAttribute('data-value')}"]`).getAttribute('data-value');
+                let bValue = b.querySelector(`td[data-value][data-value="${b.querySelector(`td[data-value]`).getAttribute('data-value')}"]`).getAttribute('data-value');
+
+                // Doğru sütunu seç
+                aValue = a.querySelector(`td:nth-child(${getColumnIndex(sortKey)})`).getAttribute('data-value');
+                bValue = b.querySelector(`td:nth-child(${getColumnIndex(sortKey)})`).getAttribute('data-value');
+
+                // Sayısal değerler için özel işlem
+                if (sortKey === 'fiyat' || sortKey === 'degisim' || sortKey === 'hacim') {
+                    aValue = parseFloat(aValue) || 0;
+                    bValue = parseFloat(bValue) || 0;
+                    return isAscending ? aValue - bValue : bValue - aValue;
+                }
+
+                // Metin sıralama
+                return isAscending ?
+                    aValue.localeCompare(bValue) :
+                    bValue.localeCompare(aValue);
+            });
+
+            // Sıralanmış satırları tabloya geri ekle
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function getColumnIndex(sortKey) {
+            const headers = {
+                'isim': 1,
+                'exchange': 2,
+                'fiyat': 3,
+                'degisim': 4,
+                'hacim': 5
+            };
+            return headers[sortKey];
+        }
 
         function guncelleTablo() {
             fetch(window.location.href)
