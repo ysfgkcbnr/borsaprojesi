@@ -91,20 +91,11 @@ def borsa_anasayfa(request):
     # XU30 ve XU100 listeleri (senin eklemen gerekenler için şimdilik böyle)
     XU30_HISSELERI = [
         'AEFES', 'AKBNK', 'ALARK', 'ASELS', 'ASTOR', 'BIMAS', 'EKGYO', 'ENKAI', 'EREGL', 'FROTO',
-        'GARAN', 'HEKTS', 'ISCTR', 'KCHOL', 'KONTR', 'KOZAL', 'KRDMD', 'MGROS', 'PETKM', 'PGSUS',
-        'SAHOL', 'SASA', 'SISE', 'TCELL', 'THYAO', 'TOASO', 'TTKOM', 'TUPRS', 'ULKER', 'YKBNK'
+
     ]
     XU100_HISSELERI = [
         'AEFES', 'AGHOL', 'AGROT', 'AKBNK', 'AKFYE', 'AKSA', 'AKSEN', 'ALARK', 'ALFAS', 'ALTNY',
-        'ANHYT', 'ANSGR', 'ARCLK', 'ARDYZ', 'ASELS', 'ASTOR', 'BERA', 'BIMAS', 'BRSAN', 'BRYAT',
-        'BSOKE', 'BTCIM', 'CANTE', 'CCOLA', 'CIMSA', 'CLEBI', 'CVKMD', 'CWENE', 'DOAS', 'DOHOL',
-        'ECILC', 'EGEEN', 'EKGYO', 'ENERY', 'ENJSA', 'ENKAI', 'EREGL', 'EUPWR', 'FENER', 'FROTO',
-        'GARAN', 'GESAN', 'GOLTS', 'GUBRF', 'HALKB', 'HEKTS', 'IEYHO', 'ISCTR', 'ISMEN', 'KARSN',
-        'KCAER', 'KCHOL', 'KLSER', 'KONTR', 'KONYA', 'KOZAA', 'KOZAL', 'KRDMD', 'LIDER', 'MAGEN',
-        'MAVI', 'MGROS', 'MIATK', 'MPARK', 'NTHOL', 'ODAS', 'OTKAR', 'OYAKC', 'PASEU', 'PETKM',
-        'PGSUS', 'REEDR', 'SAHOL', 'SASA', 'SDTTR', 'SELEC', 'SISE', 'SKBNK', 'SMRTG', 'SOKM',
-        'TABGD', 'TAVHL', 'TCELL', 'THYAO', 'TKFEN', 'TMSN', 'TOASO', 'TSKB', 'TSPOR', 'TTKOM',
-        'TTRAK', 'TUKAS', 'TUPRS', 'TURSG', 'ULKER', 'VAKBN', 'VESTL', 'YEOTK', 'YKBNK', 'ZOREN'
+
     ]
 
     EXCHANGE_MAP = {
